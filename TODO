@@ -1,0 +1,64 @@
+git topics setup
+  initialize pu/next/master/maint branches (configurable names, of course)
+  configure prefix for topic branches
+  optionally set up a git hook that prevents untagged master pushes
+
+git topics start <name>
+  git checkout -b topic/<name> master
+
+git topics review <name>
+  git checkout topic/<name>
+  git push -u origin topic/<name>
+  open github.com /compare page so you can make a pull request
+    any way to detect existing PR? if so, go there instead of /compare
+    what if the repo isn't on github.com? `git request-pull`, maybe?
+
+git topics stage <name> [--[no-]push]
+  git checkout next
+  git pull?
+  git merge --no-ff topic/<name>
+  git push? (depending on flag and/or configuration option)
+
+git topics finish <name>
+  git checkout master
+  git pull?
+  git merge --no-ff topic/<name>
+  git checkout next
+  git pull?
+  git merge --no-ff topic/<name>
+  git branch -d topic/<name>
+
+git topics release <tag>
+  check to make sure master doesn't have commits that aren't on next
+  git tag <tag> master
+  pre-populate tag message with the list of topics that are new to this tag
+
+git topics [status]
+  topics that haven't been closed (i.e., branches that haven't been deleted)
+  whether they're merged in pu/next/master/maint
+  pending release (if there are merges in master but master isn't tagged)
+
+git topics log
+  git log --first-parent
+  how fancy can this get?
+
+Speculative features
+  bother with maint branch shenanigans at all?
+  git topics integrate <name>...
+    clobber pu branch if it exists
+    git checkout -b pu master
+    git merge --no-ff topic/<name>...
+  git topics depend <name>
+    git merge topic/<name>
+    presumably invoked while on some other topic branch
+    feels largely unnecessary...
+  git topics align (maybe git topics doctor?)
+    git checkout master
+    git pull
+    git merge --no-ff next
+    in theory, not really necessary
+
+README.md
+  Motivation / high-level description
+  Installation
+    Figure out how to make this `brew install`-able
