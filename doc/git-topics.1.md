@@ -71,6 +71,12 @@ practice while providing some other goodies.
 * git topics help [<command>]:
   Displays in-depth help for <command> (or this page, if no command is given).
 
+* git topics setup [-f|--force]:
+  Interactively configures the current repository so you can use all the other
+  `git topics` commands. You should only need to run this command once. If you
+  misconfigured something or there was an error, you can start over with the
+  `--force` flag.
+
 ## SEE ALSO
 
 git(1), gitworkflows(7)

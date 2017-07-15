@@ -1,6 +1,4 @@
 git topics setup
-  initialize pu/next/master/maint branches (configurable names, of course)
-  configure prefix for topic branches
   optionally set up a git hook that prevents untagged master pushes
 
 git topics start <name>
