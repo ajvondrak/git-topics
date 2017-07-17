@@ -1,9 +1,6 @@
 git topics setup
   optionally set up a git hook that prevents untagged master pushes
 
-git topics start <name>
-  git checkout -b topic/<name> master
-
 git topics review <name>
   git checkout topic/<name>
   git push -u origin topic/<name>

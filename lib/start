@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+usage() {
+  echo >&2 "usage: git topics start <name>"
+  echo >&2
+  echo >&2 "See 'git topics help start'."
+  exit 1
+}
+
+if test $# != 1; then
+  usage
+fi
+
+require_setup
+keep_up_to_date "$MASTER"
+git checkout -b "$TOPIC$1" "$MASTER"

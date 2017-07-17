@@ -77,6 +77,9 @@ practice while providing some other goodies.
   misconfigured something or there was an error, you can start over with the
   `--force` flag.
 
+* git topics start <name>:
+  Start a new topic branch.
+
 ## SEE ALSO
 
 git(1), gitworkflows(7)

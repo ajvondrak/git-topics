@@ -9,6 +9,45 @@ usage() {
   exit 1
 }
 
+require_setup() {
+  MASTER="$(git config git-topics.master)" &&
+  DEVELOP="$(git config git-topics.develop)" &&
+  TOPIC="$(git config git-topics.topic)" &&
+  return 0
+  echo >&2 "fatal: git-topics has not been setup. Run 'git topics setup' first."
+  exit 1
+}
+
+keep_up_to_date() {
+  git show-ref --quiet --verify -- "refs/heads/$1" || {
+    echo >&2 "fatal: no such branch: '$1'"
+    exit 1
+  }
+
+  local branch remote merge upstream ahead behind
+  branch="$1"
+  remote="$(git config "branch.$branch.remote")" || return 0
+  merge="$(git config "branch.$branch.merge")" || return 0
+  upstream="$(git rev-parse --abbrev-ref "$branch@{upstream}")"
+
+  git fetch --quiet "$remote" "$merge" || {
+    echo >&2 "warning: error fetching from $remote, $branch may be out of date."
+    return 1
+  }
+
+  read ahead behind < <(git rev-list --left-right --count "$branch...$upstream")
+
+  if test "$behind" -gt 0; then
+    local ahead_behind="[ahead $ahead, behind $behind]"
+    echo >&2 "Your $branch branch is out of date with $upstream $ahead_behind."
+    echo >&2 "Merge upstream changes and try again."
+    exit 1
+  elif test "$ahead" -gt 0; then
+    local commits="$(test "$ahead" = 1 && echo "commit" || echo "commits")"
+    echo >&2 "Your $branch branch is ahead of $upstream by $ahead $commits."
+  fi
+}
+
 lib() {
   local cwd="$PWD"
   local path="${BASH_SOURCE[0]}"
