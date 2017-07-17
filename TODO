@@ -55,3 +55,5 @@ Speculative features
 README.md
   Installation
     Figure out how to make this `brew install`-able
+    bash completion
+    zsh completion
