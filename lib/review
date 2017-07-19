@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+usage() {
+  echo >&2 "usage: git topics review <name>"
+  echo >&2
+  echo >&2 "See 'git topics help review'."
+  exit 1
+}
+
+if test $# != 1; then
+  usage
+fi
+
+require_setup
+
+require_clean_work_tree "push topic upstream for review"
+
+branch="$TOPIC$1"
+
+if ! git show-ref --quiet --verify -- "refs/heads/$branch"; then
+  echo >&2 "fatal: no such branch: '$branch'"
+  exit 1
+fi
+
+pushremote_for() {
+  git config "branch.$1.pushremote" ||
+  git config "remote.pushdefault" ||
+  git config "branch.$1.remote" || {
+    echo >&2 "Branch $1 has no remote for pushing."
+    return 1
+  }
+  echo >&2 "Branch $1 has a remote for pushing."
+}
+
+origin="$(
+  pushremote_for "$branch" ||
+  pushremote_for "$DEVELOP" ||
+  pushremote_for "$MASTER" ||
+  echo 'origin'
+)"
+
+echo >&2 "Using $origin as the remote for pushing."
+git push --set-upstream "$origin" "$branch"
+
+upstream_relative_to_origin() {
+  local ref
+  ref="$(git config "branch.$1.merge")" || {
+    echo >&2 "Branch $1 has no upstream configured."
+    exit 1
+  }
+  git rev-parse --abbrev-ref "$ref" || exit 1
+}
+
+origin_url="$(git remote get-url --push "$origin")"
+base="$(upstream_relative_to_origin "$DEVELOP")"
+pull="$(upstream_relative_to_origin "$branch")"
+
+on_github() {
+  echo "$origin_url" |
+  grep -q '^\(git@github.com:\|https://github.com/\)'
+}
+
+github_url() {
+  echo "$origin_url" |
+  sed -e 's!^git@github.com:!https://github.com/!' -e 's!\.git$!!'
+}
+
+open_github_pull_request() {
+  on_github || return 1
+  git web--browse "$(github_url)/compare/$base...$pull?expand=1"
+}
+
+open_stdout_pull_request() {
+  git branch --edit-description "$branch"
+  git request-pull "$base" "$origin_url" "$pull"
+}
+
+open_github_pull_request || open_stdout_pull_request

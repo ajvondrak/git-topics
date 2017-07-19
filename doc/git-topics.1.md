@@ -80,6 +80,9 @@ practice while providing some other goodies.
 * git topics start <name>:
   Start a new topic branch.
 
+* git topics review <name>:
+  Push a topic branch upstream for review.
+
 ## SEE ALSO
 
 git(1), gitworkflows(7)

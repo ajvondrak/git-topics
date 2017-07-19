@@ -1,13 +1,6 @@
 git topics setup
   optionally set up a git hook that prevents untagged master pushes
 
-git topics review <name>
-  git checkout topic/<name>
-  git push -u origin topic/<name>
-  open github.com /compare page so you can make a pull request
-    any way to detect existing PR? if so, go there instead of /compare
-    what if the repo isn't on github.com? `git request-pull`, maybe?
-
 git topics stage <name> [--[no-]push]
   git checkout next
   git pull?
