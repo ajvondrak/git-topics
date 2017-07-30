@@ -1,12 +1,6 @@
 git topics setup
   optionally set up a git hook that prevents untagged master pushes
 
-git topics stage <name> [--[no-]push]
-  git checkout next
-  git pull?
-  git merge --no-ff topic/<name>
-  git push? (depending on flag and/or configuration option)
-
 git topics finish <name>
   git checkout master
   git pull?

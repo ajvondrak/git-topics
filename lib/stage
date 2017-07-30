@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+usage() {
+  echo >&2 "usage: git topics stage <name>"
+  echo >&2
+  echo >&2 "See 'git topics help stage'."
+  exit 1
+}
+
+if test $# != 1; then
+  usage
+fi
+
+require_setup
+require_clean_work_tree "stage git topic"
+
+branch="$TOPIC$1"
+
+if ! git show-ref --quiet --verify -- "refs/heads/$branch"; then
+  echo >&2 "fatal: no such branch: '$branch'"
+  exit 1
+fi
+
+keep_up_to_date "$DEVELOP"
+git checkout "$DEVELOP"
+git merge --no-ff "$branch"

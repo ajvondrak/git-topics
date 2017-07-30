@@ -83,6 +83,9 @@ practice while providing some other goodies.
 * git topics review <name>:
   Push a topic branch upstream for review.
 
+* git topics stage <name>:
+  Merge a topic branch to the unstable _develop_ branch.
+
 ## SEE ALSO
 
 git(1), gitworkflows(7)
