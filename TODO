@@ -12,7 +12,7 @@ git topics finish <name>
   git merge --no-ff topic/<name>
   git branch -d topic/<name>
 
-git topics release <tag>
+git topics release [major|minor|patch]
   check to make sure master doesn't have commits that aren't on next
   git tag <tag> master
   pre-populate tag message with the list of topics that are new to this tag
