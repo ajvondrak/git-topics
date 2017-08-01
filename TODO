@@ -26,15 +26,15 @@ git topics log
   git log --first-parent
   how fancy can this get?
 
+git topics use <name>
+  git merge topic/<name>
+  presumably invoked while on some other topic branch
+
 Speculative features
   git topics integrate <name>...
     clobber pu branch if it exists
     git checkout -b pu master
     git merge --no-ff topic/<name>...
-  git topics depend <name>
-    git merge topic/<name>
-    presumably invoked while on some other topic branch
-    feels largely unnecessary...
   git topics align (maybe git topics doctor?)
     git checkout master
     git pull
