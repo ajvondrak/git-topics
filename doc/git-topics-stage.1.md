@@ -41,7 +41,7 @@ is required, this command will stop short of actually merging the topic.
 Aside from the sanity checks beforehand, `git topics stage` is really just
 equivalent to `git merge --no-ff`. Specifically, there are no further actions
 that the command performs after doing the merge. So in the event of a merge
-conflict (or any other condition that causes `git merge` to exit early), you
+conflict (or any other condition that causes `git merge` to exit non-zero), you
 may continue to resolve it the same way as if you'd simply used `git merge`.
 You could even use `git merge --abort`.
 
@@ -73,24 +73,40 @@ instead of trying to preempt them. As long as you're making the fixes already,
 you might as well record those in the merge commit itself: it's part of the
 history too, it's the most relevant place to record conflict resolutions (be
 sure to explain them in the commit message!), and you're guaranteed a merge
-commit via `--no-ff` regardless.
+commit via `--no-ff` regardless, which means the branch's history remains
+intact.
 
-As always, evaluate your needs on a case by case basis. Perhaps topic A
-actually has a dependency on topic B, so you should merge B into A. Maybe
-rebasing public commits or merging the upstream to your topic is actually
-appropriate. `git cherry-pick` might also play into a solution to your problem.
+As always, evaluate your needs on a case by case basis. There's no
+one-size-fits-all solution:
 
-Most insidiously, maybe the issue with the merge isn't a simple textual
-conflict, but rather a more "semantic" one (e.g., someone has changed the name
-of a variable you depend on). One way to preempt such issues is to play with
-`git topics integrate` before staging your topic.
+* Perhaps topic A actually has a dependency on topic B, so you should merge B
+  into A. See git-topics-use(1).
+
+* Evil merges don't just have a simple textual conflict, but rather a more
+  "semantic" one (e.g., someone has changed the name of a variable you depend
+  on). One way to preempt such issues is to play with a throwaway integration
+  branch before staging your topic. See git-topics-integrate(1).
+
+* Maybe in some narrow case merging the upstream to your topic is actually
+  appropriate.
+
+* It could be that rewriting commits (even public ones) is ultimately the way
+  to go. Sometimes this is called a "reroll": to just write the feature over
+  again with a cleaner patch set and/or history.
+
+* Of course, you could always make additional commits to your topic before
+  merging.
+
+* In certain situations, you just need to copy over a certain commit with `git
+  cherry-pick`. This should be infrequent with proper branch management,
+  though.
+
+* etc
+
+Use your best judgement.
 
 ## SEE ALSO
 
-git-topics(1), git-topics-setup(1), git-merge(1), git-checkout(1),
-git-fetch(1), git-pull(1)
-
-gitworkflows(7), git-rebase(1), git-cherry-pick(1), git-topics-review(1),
-git-topics-integrate(1)
+git-topics(1), git-merge(1), git-checkout(1), git-fetch(1), git-pull(1)
 
 [Linus Torvalds on git rebase and merge](http://www.mail-archive.com/dri-devel@lists.sourceforge.net/msg39091.html)
