@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+
+usage() {
+  echo >&2 "usage: git topics finish <topic>"
+  echo >&2
+  echo >&2 "See 'git topics help finish'."
+  exit 1
+}
+
+if test $# != 1; then
+  usage
+fi
+
+require_setup
+require_clean_work_tree "finish git topic"
+set_topic "$1"
+
+keep_up_to_date "$DEVELOP"
+
+staged() {
+  git merge-base --is-ancestor "$TOPIC" "$DEVELOP"
+}
+
+if ! staged; then
+  echo >&2 "Branch $TOPIC has not been merged to $DEVELOP."
+  echo >&2 "Use 'git topics stage $1' first and try again."
+  exit 1
+fi
+
+keep_up_to_date "$MASTER"
+
+finished() {
+  git merge-base --is-ancestor "$TOPIC" "$MASTER"
+}
+
+if ! finished; then
+  git checkout "$MASTER"
+  git merge --no-ff "$TOPIC" || exit 1
+fi
+
+pushremote() {
+  git config "branch.$TOPIC.pushremote" ||
+  git config "remote.pushdefault" ||
+  git config "branch.$TOPIC.remote" || {
+    echo >&2 "Branch $TOPIC has no remote for pushing."
+    return 1
+  }
+}
+
+pushref() {
+  git config "branch.$TOPIC.merge" || {
+    echo >&2 "Branch $TOPIC has no corresponding remote branch."
+    return 1
+  }
+}
+
+delete_remote_topic() {
+  local remote ref
+  remote="$(pushremote)" || return 1
+  ref="$(pushref)" || return 1
+  git push "$remote" --delete "$ref"
+}
+
+delete_local_topic() {
+  git branch --delete "$TOPIC"
+}
+
+delete_remote_topic
+delete_local_topic

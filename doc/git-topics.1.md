@@ -86,6 +86,9 @@ practice while providing some other goodies.
 * git topics stage <topic>:
   Merge a topic branch to the staging branch.
 
+* git topics finish <topic>:
+  Merge a topic branch to the production-ready branch.
+
 ## SEE ALSO
 
 git(1), gitworkflows(7)

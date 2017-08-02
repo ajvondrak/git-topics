@@ -3,15 +3,6 @@ git topics setup
     prevents untagged master pushes
     post-commit to trigger `git topics finish` in case of merge conflicts
 
-git topics finish <name>
-  git checkout master
-  git pull?
-  git merge --no-ff topic/<name>
-  git checkout next
-  git pull?
-  git merge --no-ff topic/<name>
-  git branch -d topic/<name>
-
 git topics release [major|minor|patch]
   check to make sure master doesn't have commits that aren't on next
   git tag <tag> master
