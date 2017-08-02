@@ -30,16 +30,11 @@ git topics use <name>
   git merge topic/<name>
   presumably invoked while on some other topic branch
 
-Speculative features
-  git topics integrate <name>...
-    clobber pu branch if it exists
-    git checkout -b pu master
-    git merge --no-ff topic/<name>...
-  git topics align (maybe git topics doctor?)
-    git checkout master
-    git pull
-    git merge --no-ff next
-    in theory, not really necessary
+git topics integrate <name>...
+  clobber pu branch if it exists
+  git checkout -b pu master
+  git merge --no-ff topic/<name>...
+  how fancy can this get?
 
 README.md
   Installation
