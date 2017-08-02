@@ -12,10 +12,17 @@ usage() {
 require_setup() {
   MASTER="$(git config git-topics.master)" &&
   DEVELOP="$(git config git-topics.develop)" &&
-  TOPIC="$(git config git-topics.topic)" &&
   return 0
   echo >&2 "fatal: git-topics has not been setup. Run 'git topics setup' first."
   exit 1
+}
+
+set_topic() {
+  TOPIC="$1"
+  if ! git show-ref --quiet --verify -- "refs/heads/$TOPIC"; then
+    echo >&2 "fatal: no such branch: '$TOPIC'"
+    exit 1
+  fi
 }
 
 keep_up_to_date() {

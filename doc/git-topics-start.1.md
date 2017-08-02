@@ -2,16 +2,14 @@
 
 ## SYNOPSIS
 
-`git topics start` <name>
+`git topics start` <topic>
 
 ## DESCRIPTION
 
-Starts a new topic branch with the given <name> forked off of _master_. If so
-configured by `git topics setup`, <name> will be automatically prefixed to
-adhere to branch naming conventions. If _master_ is tracking a remote branch,
-`git topics start` makes an effort to ensure your local _master_ branch is up
-to date first. This avoids starting your topic based on old code and having to
-rebase it later.
+Starts a new topic branch named <topic> forked off of _master_. If _master_ is
+tracking a remote branch, `git topics start` makes an effort to ensure your
+local _master_ branch is up to date first. This avoids starting your topic
+based on old code and having to rebase it later.
 
 To keep _master_ up to date, this command will `git fetch` the remote branch
 for any pending commits. If the local branch is behind, the topic branch will
@@ -23,7 +21,7 @@ Essentially, this command is equivalent to
 
     $ git checkout <master>
     $ git pull
-    $ git checkout -b <prefixed-name>
+    $ git checkout -b <topic>
 
 except that it only does a `git fetch`, not a full `git pull`. If a `git merge`
 is required, it'll stop short of the actual branch creation.

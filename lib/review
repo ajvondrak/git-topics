@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage() {
-  echo >&2 "usage: git topics review <name>"
+  echo >&2 "usage: git topics review <topic>"
   echo >&2
   echo >&2 "See 'git topics help review'."
   exit 1
@@ -12,15 +12,8 @@ if test $# != 1; then
 fi
 
 require_setup
-
 require_clean_work_tree "push topic upstream for review"
-
-branch="$TOPIC$1"
-
-if ! git show-ref --quiet --verify -- "refs/heads/$branch"; then
-  echo >&2 "fatal: no such branch: '$branch'"
-  exit 1
-fi
+set_topic "$1"
 
 pushremote_for() {
   git config "branch.$1.pushremote" ||
@@ -33,14 +26,14 @@ pushremote_for() {
 }
 
 origin="$(
-  pushremote_for "$branch" ||
+  pushremote_for "$TOPIC" ||
   pushremote_for "$DEVELOP" ||
   pushremote_for "$MASTER" ||
   echo 'origin'
 )"
 
 echo >&2 "Using $origin as the remote for pushing."
-git push --set-upstream "$origin" "$branch"
+git push --set-upstream "$origin" "$TOPIC"
 
 upstream_relative_to_origin() {
   local ref
@@ -53,7 +46,7 @@ upstream_relative_to_origin() {
 
 origin_url="$(git remote get-url --push "$origin")"
 base="$(upstream_relative_to_origin "$DEVELOP")"
-pull="$(upstream_relative_to_origin "$branch")"
+pull="$(upstream_relative_to_origin "$TOPIC")"
 
 on_github() {
   echo "$origin_url" |
@@ -71,7 +64,7 @@ open_github_pull_request() {
 }
 
 open_stdout_pull_request() {
-  git branch --edit-description "$branch"
+  git branch --edit-description "$TOPIC"
   git request-pull "$base" "$origin_url" "$pull"
 }
 

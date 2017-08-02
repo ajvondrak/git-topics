@@ -36,7 +36,7 @@ semantically meaningful, possibly with some conventional prefix. For example,
 if John Doe is working on a topic "foo", he might reasonably name the branch
 simply _foo_, prefix it by a keyword like _topic/foo_ or _feature-foo_, or
 maybe prefix it by his initials like _jd/foo_. The important thing is that your
-project's convention is consistent.
+project's convention is consistent and useful.
 
 The general life cycle of a topic branch then goes:
 
@@ -77,13 +77,13 @@ practice while providing some other goodies.
   misconfigured something or there was an error, you can start over with the
   `--force` flag.
 
-* git topics start <name>:
+* git topics start <topic>:
   Start a new topic branch.
 
-* git topics review <name>:
+* git topics review <topic>:
   Push a topic branch upstream for review.
 
-* git topics stage <name>:
+* git topics stage <topic>:
   Merge a topic branch to the staging branch.
 
 ## SEE ALSO

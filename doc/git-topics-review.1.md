@@ -2,17 +2,16 @@
 
 ## SYNOPSIS
 
-`git topics review` <name>
+`git topics review` <topic>
 
 ## DESCRIPTION
 
-Pushes the topic branch given by <name> to an upstream branch and attempts to
-open a pull request. If so configured by `git topics setup`, <name> will be
-automatically prefixed to adhere to branch naming conventions.
+Pushes the topic branch named <topic> to an upstream branch and attempts to
+open a pull request.
 
 The first part of this command is equivalent to
 
-    $ git push --set-upstream <origin> <prefixed-name>
+    $ git push --set-upstream <origin> <topic>
 
 To determine which remote to use as <origin>, we look at git config values for
 `branch.<name>.pushRemote`, `remote.pushDefault`, and/or `branch.<name>.remote`
@@ -46,7 +45,7 @@ used to open the GitHub pull request form in your browser.
 
 In this scenario, the second part of this command is equivalent to
 
-    $ git web--browse https://github.com/<user>/<repo>/compare/<develop>...<prefixed-name>?expand=1
+    $ git web--browse https://github.com/<user>/<repo>/compare/<develop>...<topic>?expand=1
 
 Of course, not every repository is hosted on GitHub. In this scenario, the
 command uses the builtin `git request-pull` to format a pull request message to
@@ -54,8 +53,8 @@ stdout. You could then copy this text into, say, an email.
 
 In this scenario, the second part of this command is equivalent to
 
-    $ git branch --edit-description <prefixed-name>
-    $ git request-pull <develop> <origin> <prefixed-name>
+    $ git branch --edit-description <topic>
+    $ git request-pull <develop> <origin> <topic>
 
 ## SEE ALSO
 

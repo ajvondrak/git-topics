@@ -2,14 +2,12 @@
 
 ## SYNOPSIS
 
-`git topics stage` <name>
+`git topics stage` <topic>
 
 ## DESCRIPTION
 
-Merges an existing, "reasonably" stable topic branch given by <name> to the
-_develop_ branch for beta testing & integration. If so configured by `git
-topics setup`, <name> will be automatically prefixed to adhere to branch naming
-conventions.
+Merges an existing, "reasonably" stable topic branch named <topic> to the
+_develop_ branch for beta testing & integration.
 
 The merge is done with the `--no-ff` flag, ensuring that a commit is always
 created to record the fact that this topic was staged. The topic branch will
@@ -30,7 +28,7 @@ Essentially, this command is equivalent to
 
     $ git checkout <develop>
     $ git pull
-    $ git merge --no-ff <prefixed-name>
+    $ git merge --no-ff <topic>
 
 except that it only does a `git fetch`, not a full `git pull`. If a `git merge`
 from the upstream _develop_ is required, it'll stop short of merging the topic.

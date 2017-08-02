@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 usage() {
-  echo >&2 "usage: git topics start <name>"
+  echo >&2 "usage: git topics start <topic>"
   echo >&2
   echo >&2 "See 'git topics help start'."
   exit 1
@@ -13,4 +13,4 @@ fi
 
 require_setup
 keep_up_to_date "$MASTER"
-git checkout -b "$TOPIC$1" "$MASTER"
+git checkout -b "$1" "$MASTER"

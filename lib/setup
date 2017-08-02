@@ -52,13 +52,6 @@ validate_merge_base() {
   fi
 }
 
-validate_branch_prefix() {
-  if ! git check-ref-format "refs/heads/$1topic" >/dev/null 2>&1; then
-    echo >&2 "'$1' cannot be used by git as a branch prefix."
-    exit 1
-  fi
-}
-
 require_clean_work_tree "setup git topics"
 
 if missing_config "master" || force; then
@@ -94,22 +87,6 @@ fi
 
 develop="$(git config --get git-topics.develop)"
 echo "Your develop branch is named '$develop'."
-echo
-
-if missing_config "topic" || force; then
-  echo "Some projects use certain naming conventions for their topic branches."
-  echo "To help out, you can set up an automatic prefix for topic branch names."
-  echo "For example, you might use '' (no prefix), 'topic/', 'feature-', or"
-  echo "'fl/' where f & l are your first & last initials."
-  echo
-  echo -n "What prefix (if any) should be used for topic branch names? "
-  read prefix
-  validate_branch_prefix "$prefix"
-  git config git-topics.topic "$prefix"
-fi
-
-topic="$(git config --get git-topics.topic)"
-echo "Your topic branches will be named '$topic<name>'."
 echo
 
 echo "git-topics is setup! See 'git help topics' to get started."

@@ -28,11 +28,6 @@ The setup will prompt for the following pieces of information:
    <master>` must exist), guaranteeing that topic branches can be merged
    cleanly into both.
 
-3. The prefix to use for topic branch names. This can be any string that is
-   acceptable as part of a branch name, as determined by `git
-   check-ref-format`. If you don't want to prefix your topic branch names, just
-   hit ENTER to leave this prefix empty.
-
 You should only need to run this command once, since the above options will be
 persisted to the repository's local git config. The other `git topics` commands
 reference these config values to carry out their operations.
