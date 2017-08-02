@@ -1,4 +1,4 @@
-# git-topics-stage(1) -- Merge a topic branch to the unstable _develop_ branch
+# git-topics-stage(1) -- Merge a topic branch to the staging branch
 
 ## SYNOPSIS
 
