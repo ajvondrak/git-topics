@@ -10,19 +10,21 @@ Merges an existing, "reasonably" stable topic branch named <topic> to the
 _develop_ branch for beta testing & integration.
 
 The merge is done with the `--no-ff` flag, ensuring that a commit is always
-created to record the fact that this topic was staged. The topic branch will
-NOT be deleted, in case issues are found while testing the code on _develop_.
-If there are issues, you should make further commits on the topic branch and
-`git topics stage` it again.
+created to record the fact that this topic was staged. When the topic branch
+gets deleted, you'll still be able to recover its history from this merge
+commit.
+
+Note that the topic branch will NOT be deleted here, in case issues are found
+while testing the code on _develop_. If there are issues, you should make
+further commits on the topic branch and `git topics stage` it again.
 
 If _develop_ is tracking a remote branch, `git topics stage` makes an effort to
-ensure your local _develop_ branch is up to date first. This avoids conflicts
-if you later push upstream. To keep _develop_ up to date, this command will
-`git fetch` the remote branch for any pending commits. If the local branch is
-behind, the topic branch will not be merged. If the fetch itself fails, the
-topic branch will still be merged, but there will be a warning. That way,
-transient issues like internet connection problems won't get in the way of your
-development.
+ensure your local branch is up to date first. This avoids conflicts if you
+later push upstream. This is done with a `git fetch` of the corresponding
+remote branch. If the local branch is behind, the topic will not be merged. If
+the fetch itself fails, the topic will still be merged, but there will be a
+warning. That way, transient issues like internet connection problems won't get
+in the way of your development.
 
 Essentially, this command is equivalent to
 
@@ -30,12 +32,13 @@ Essentially, this command is equivalent to
     $ git pull
     $ git merge --no-ff <topic>
 
-except that it only does a `git fetch`, not a full `git pull`. If a `git merge`
-from the upstream _develop_ is required, it'll stop short of merging the topic.
+except that it only does a `git fetch`, not a full `git pull`, and only if
+there's a remote tracking branch. If a `git merge` from the upstream _develop_
+is required, this command will stop short of actually merging the topic.
 
 ## MERGE CONFLICTS
 
-Aside from the sanity check beforehand, `git topics stage` is really just
+Aside from the sanity checks beforehand, `git topics stage` is really just
 equivalent to `git merge --no-ff`. Specifically, there are no further actions
 that the command performs after doing the merge. So in the event of a merge
 conflict (or any other condition that causes `git merge` to exit early), you
