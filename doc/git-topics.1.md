@@ -89,6 +89,9 @@ practice while providing some other goodies.
 * git topics finish <topic>:
   Merge a topic branch to the production-ready branch.
 
+* git topics release [major|minor|patch]:
+  Tag the production-ready branch with a new version.
+
 ## SEE ALSO
 
 git(1), gitworkflows(7)

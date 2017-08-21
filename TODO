@@ -4,8 +4,6 @@ git topics setup
     post-commit to trigger `git topics finish` in case of merge conflicts
 
 git topics release [major|minor|patch]
-  check to make sure master doesn't have commits that aren't on next
-  git tag <tag> master
   pre-populate tag message with the list of topics that are new to this tag
 
 git topics [status]

@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+usage() {
+  echo >&2 "usage: git topics release [major|minor|patch]"
+  echo >&2
+  echo >&2 "See 'git topics help release'."
+  exit 1
+}
+
+case "$1" in
+  major|minor|patch) ;;
+  *) usage ;;
+esac
+
+require_setup
+require_clean_work_tree "tag a new release"
+
+keep_up_to_date "$MASTER"
+
+tip="$(git describe --exact-match --abbrev=0 "$MASTER" 2>/dev/null)" && {
+  echo >&2 "The tip of the '$MASTER' branch is already tagged '$tip'."
+  echo >&2 "Use 'git topics finish' before tagging a new version."
+  exit 1
+}
+
+last_tag="$(git describe --abbrev=0 "$MASTER" 2>/dev/null || echo "v0.0.0")"
+
+if [[ $last_tag =~ ^([^0-9]*)([0-9]+)(\.([0-9]+))?(\.([0-9]+))? ]]; then
+  label="${BASH_REMATCH[1]}"
+  major="${BASH_REMATCH[2]:-0}"
+  minor="${BASH_REMATCH[4]:-0}"
+  patch="${BASH_REMATCH[6]:-0}"
+else
+  echo >&2 "Last tag '$last_tag' does not look like a version."
+  echo >&2 "You may have to use 'git tag -a' by hand."
+  exit 1
+fi
+
+case "$1" in
+  major) next_tag="$label$((major + 1)).0.0" ;;
+  minor) next_tag="$label$major.$((minor + 1)).0" ;;
+  patch) next_tag="$label$major.$minor.$((patch + 1))" ;;
+esac
+
+cat <<-TEMPLATE > "$GIT_DIR/TAG_EDITMSG"
+
+#
+# Please enter the tag message for your release. Lines starting
+# with '#' will be ignored, and an empty message aborts the release.
+#
+# Releasing $next_tag (was $last_tag)
+# Topics to be released:
+#   TODO
+TEMPLATE
+
+git_editor "$GIT_DIR/TAG_EDITMSG"
+grep -v "^#" < "$GIT_DIR/TAG_EDITMSG" |
+git stripspace > "$GIT_DIR/TAG_FINALMSG"
+
+if test -s "$GIT_DIR/TAG_FINALMSG"; then
+  git tag "$next_tag" "$MASTER" -F "$GIT_DIR/TAG_FINALMSG"
+else
+  echo >&2 "Aborting release due to empty tag message."
+fi
