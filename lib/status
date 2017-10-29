@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+
+usage() {
+  echo >&2 "usage: git topics status [-r|--remotes] [-v|--verbose]"
+  echo >&2
+  echo >&2 "See 'git topics help status'."
+  exit 1
+}
+
+OPTS_SPEC="
+Normalizes argv using git-rev-parse.
+--
+v,verbose need an <arg-hint> or else git-rev-parse breaks
+r,remotes need an <arg-hint> or else git-rev-parse breaks
+"
+options="$(echo "$OPTS_SPEC" | git rev-parse --parseopt -- "$@" 2>/dev/null)"
+
+if test "$?" -ne 0; then
+  usage
+fi
+
+eval "$options"
+for option in "$@"; do
+  case "$option" in
+    -r) remotes=1 ;;
+    -v) verbose=1 ;;
+  esac
+done
+
+require_setup
+
+push_for() {
+  git rev-parse --symbolic-full-name "$1@{push}" 2>/dev/null
+}
+
+MASTER_PUSH="$(push_for "$MASTER")"
+DEVELOP_PUSH="$(push_for "$DEVELOP")"
+
+not_a_topic() {
+  case "$1" in
+    HEAD|refs/*/HEAD) return 0 ;;
+    "$MASTER_PUSH"|"$DEVELOP_PUSH") return 0 ;;
+    "refs/heads/$MASTER"|"refs/heads/$DEVELOP") return 0 ;;
+    *) test -z "$(git merge-base "$MASTER" "$1")" ;;
+  esac
+}
+
+FINISHED=()
+STAGED=()
+UNSTAGED=()
+
+while read topic; do
+  if not_a_topic "$topic"; then
+    continue
+  elif git merge-base --is-ancestor "$topic" "$MASTER"; then
+    FINISHED+=("$topic")
+  elif git merge-base --is-ancestor "$topic" "$DEVELOP"; then
+    STAGED+=("$topic")
+  else
+    UNSTAGED+=("$topic")
+  fi
+done < <(
+  if test -n "$remotes"; then
+    git for-each-ref --format="%(refname)" refs/remotes
+  else
+    git for-each-ref --format="%(refname)" refs/heads
+  fi
+)
+
+if test -p /dev/stdout; then
+  stdout_is_tty="false"
+elif test -t 1; then
+  stdout_is_tty="true"
+else
+  stdout_is_tty="false"
+fi
+
+color="$(git config --get-colorbool color.ui "$stdout_is_tty")"
+color() {
+  if test "$color" = "true"; then
+    echo "%(color:$1)"
+  fi
+}
+
+format() {
+  echo "$(color "$1")%(refname:short)"
+}
+
+if test "${#FINISHED[@]}" -ne 0; then
+  if test -n "$verbose"; then
+    echo "Finished topics:"
+    echo "  (use 'git topics release [major|minor|patch]' to tag a new version)"
+    echo
+    echo "${FINISHED[@]}" |
+    xargs git for-each-ref --format="    $(format "green")"
+    echo
+  else
+    echo "${FINISHED[@]}" |
+    xargs git for-each-ref --format="* $(format "green")"
+  fi
+fi
+
+if test "${#STAGED[@]}" -ne 0; then
+  if test -n "$verbose"; then
+    echo "Staged topics:"
+    echo "  (use 'git topics finish <topic>' to promote to $MASTER)"
+    echo
+    echo "${STAGED[@]}" |
+    xargs git for-each-ref --format="    $(format "normal")"
+    echo
+  else
+    echo "${STAGED[@]}" |
+    xargs git for-each-ref --format="  $(format "normal")"
+  fi
+fi
+
+if test "${#UNSTAGED[@]}" -ne 0; then
+  if test -n "$verbose"; then
+    echo "Unstaged topics:"
+    echo "  (use 'git topics stage <topic>' to promote to $DEVELOP)"
+    echo
+    echo "${UNSTAGED[@]}" |
+    xargs git for-each-ref --format="    $(format "red")"
+    echo
+  else
+    echo "${UNSTAGED[@]}" |
+    xargs git for-each-ref --format="? $(format "red")"
+  fi
+fi

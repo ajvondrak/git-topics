@@ -5,11 +5,18 @@ git topics setup
 
 git topics release [major|minor|patch]
   pre-populate tag message with the list of topics that are new to this tag
+  delete topics here instead of in `finish`
 
 git topics [status]
   topics that haven't been closed (i.e., branches that haven't been deleted)
   whether they're merged in pu/next/master/maint
   pending release (if there are merges in master but master isn't tagged)
+  TODO
+    git-rev-parse --parseopt consistently everywhere
+    docs
+    flags: --remotes, --verbose (default?), --all, --finished, --etc
+    how to pass flags without `status` subcommand?
+      should `status` even be a subcommand, or just use `git topics` only?
 
 git topics log
   git log --first-parent
@@ -20,6 +27,8 @@ git topics use <name>
   presumably invoked while on some other topic branch
 
 git topics integrate <name>...
+  Need better name
+    `stage` should be renamed, `integrate` is a good name for it
   clobber pu branch if it exists
   git checkout -b pu master
   git merge --no-ff topic/<name>...
