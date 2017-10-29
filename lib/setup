@@ -72,10 +72,10 @@ echo "Your master branch is named '$master'."
 echo
 
 if missing_config "develop" || force; then
-  echo "You need a branch to stage and test unstable topics that are not yet"
-  echo "ready to be merged to '$master'."
+  echo "You need a branch to integrate and test unstable topics that are not"
+  echo "yet ready to be merged to '$master'."
   echo
-  echo -n "What should the staging branch be named (default: 'develop')? "
+  echo -n "What should the integration branch be named (default: 'develop')? "
   read name
   branch="${name:-develop}"
   use_local_branch "$branch" ||

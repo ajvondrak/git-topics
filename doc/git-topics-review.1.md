@@ -22,9 +22,9 @@ To determine which remote to use as <origin>, we look at git config values for
    upstream for the topic branch.
 
 2. Try to find the push remote for the _develop_ branch. Since the next logical
-   step in the workflow is for the topic branch to be staged to _develop_, it
-   probably makes sense to push the topic branch to the same remote as
-   _develop_ (if any).
+   step in the workflow is for the topic branch to be merged to _develop_ for
+   integration, it probably makes sense to push the topic branch to the same
+   remote as _develop_ (if any).
 
 3. Try to find the push remote for the _master_ branch. _develop_ and _master_
    would likely be tracked on the same remote (which would typically just be

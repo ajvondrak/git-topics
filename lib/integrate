@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 usage() {
-  echo >&2 "usage: git topics stage <topic>"
+  echo >&2 "usage: git topics integrate <topic>"
   echo >&2
-  echo >&2 "See 'git topics help stage'."
+  echo >&2 "See 'git topics help integrate'."
   exit 1
 }
 
@@ -12,7 +12,7 @@ if test $# != 1; then
 fi
 
 require_setup
-require_clean_work_tree "stage git topic"
+require_clean_work_tree "integrate git topic"
 set_topic "$1"
 
 keep_up_to_date "$DEVELOP"

@@ -26,9 +26,7 @@ git topics use <name>
   git merge topic/<name>
   presumably invoked while on some other topic branch
 
-git topics integrate <name>...
-  Need better name
-    `stage` should be renamed, `integrate` is a good name for it
+git topics experiment <name>...
   clobber pu branch if it exists
   git checkout -b pu master
   git merge --no-ff topic/<name>...

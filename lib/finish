@@ -17,13 +17,13 @@ set_topic "$1"
 
 keep_up_to_date "$DEVELOP"
 
-staged() {
+integrated() {
   git merge-base --is-ancestor "$TOPIC" "$DEVELOP"
 }
 
-if ! staged; then
+if ! integrated; then
   echo >&2 "Branch $TOPIC has not been merged to $DEVELOP."
-  echo >&2 "Use 'git topics stage $1' first and try again."
+  echo >&2 "Use 'git topics integrate $1' first and try again."
   exit 1
 fi
 

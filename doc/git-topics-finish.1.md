@@ -1,4 +1,4 @@
-# git-topics-finish(1) -- Merge a topic branch to the production-ready branch
+# git-topics-finish(1) -- Merge a topic branch to the stable branch
 
 ## SYNOPSIS
 
@@ -7,8 +7,8 @@
 ## DESCRIPTION
 
 Merges a stable topic branch named <topic> to the _master_ branch for future
-release. This must be done after the topic has been staged to _develop_ for
-integration testing, which can be done using `git topics stage`.
+release. This must be done after the topic has been merged into _develop_ for
+integration testing, which can be done using `git topics integrate`.
 
 The merge is done with the `--no-ff` flag, ensuring that a merge commit is
 always created. When the topic branch gets deleted, you'll still be able to
@@ -38,7 +38,7 @@ there's a remote tracking branch. If a `git merge` from the upstream _master_
 is required, this command will stop short of actually merging the topic.
 
 The same sort of `git fetch` sanity check is run against the _develop_ branch
-when checking if the topic has been staged.
+when checking if the topic has been integrated.
 
 ## MERGE CONFLICTS
 
@@ -54,10 +54,10 @@ looks like you're making a merge commit on _master_. This way, after you fix a
 merge conflict and `git commit` the result, `git topics finish` will
 automatically be reinvoked to pick up where it left off.
 
-The general notes about merge conflicts in the git-topics-stage(1) manual apply
-here, too. Additionally, note that merging a topic into _master_ may not be
-exactly the same as merging into _develop_. For example, features A & B might
-be merged to _develop_ for testing, and they may have conflicts with each
+The general notes about merge conflicts in the git-topics-integrate(1) manual
+apply here, too. Additionally, note that merging a topic into _master_ may not
+be exactly the same as merging into _develop_. For example, features A & B
+might be merged to _develop_ for testing, and they may have conflicts with each
 other. But then if you decide to only release feature A, these conflicts won't
 exist on _master_. So be careful about how you coordinate dependencies between
 multiple topics (e.g., see git-topics-use(1)).

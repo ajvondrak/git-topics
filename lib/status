@@ -36,7 +36,7 @@ push_for() {
 MASTER_PUSH="$(push_for "$MASTER")"
 DEVELOP_PUSH="$(push_for "$DEVELOP")"
 
-not_a_topic() {
+not_a_topic_branch() {
   case "$1" in
     HEAD|refs/*/HEAD) return 0 ;;
     "$MASTER_PUSH"|"$DEVELOP_PUSH") return 0 ;;
@@ -45,19 +45,19 @@ not_a_topic() {
   esac
 }
 
-FINISHED=()
-STAGED=()
-UNSTAGED=()
+ON_MASTER=()
+ON_DEVELOP=()
+ON_TOPIC=()
 
-while read topic; do
-  if not_a_topic "$topic"; then
+while read branch; do
+  if not_a_topic_branch "$branch"; then
     continue
-  elif git merge-base --is-ancestor "$topic" "$MASTER"; then
-    FINISHED+=("$topic")
-  elif git merge-base --is-ancestor "$topic" "$DEVELOP"; then
-    STAGED+=("$topic")
+  elif git merge-base --is-ancestor "$branch" "$MASTER"; then
+    ON_MASTER+=("$branch")
+  elif git merge-base --is-ancestor "$branch" "$DEVELOP"; then
+    ON_DEVELOP+=("$branch")
   else
-    UNSTAGED+=("$topic")
+    ON_TOPIC+=("$branch")
   fi
 done < <(
   if test -n "$remotes"; then
@@ -86,44 +86,44 @@ format() {
   echo "$(color "$1")%(refname:short)"
 }
 
-if test "${#FINISHED[@]}" -ne 0; then
+if test "${#ON_MASTER[@]}" -ne 0; then
   if test -n "$verbose"; then
-    echo "Finished topics:"
+    echo "Topics merged to $MASTER:"
     echo "  (use 'git topics release [major|minor|patch]' to tag a new version)"
     echo
-    echo "${FINISHED[@]}" |
+    echo "${ON_MASTER[@]}" |
     xargs git for-each-ref --format="    $(format "green")"
     echo
   else
-    echo "${FINISHED[@]}" |
+    echo "${ON_MASTER[@]}" |
     xargs git for-each-ref --format="* $(format "green")"
   fi
 fi
 
-if test "${#STAGED[@]}" -ne 0; then
+if test "${#ON_DEVELOP[@]}" -ne 0; then
   if test -n "$verbose"; then
-    echo "Staged topics:"
+    echo "Topics merged to $DEVELOP:"
     echo "  (use 'git topics finish <topic>' to promote to $MASTER)"
     echo
-    echo "${STAGED[@]}" |
+    echo "${ON_DEVELOP[@]}" |
     xargs git for-each-ref --format="    $(format "normal")"
     echo
   else
-    echo "${STAGED[@]}" |
+    echo "${ON_DEVELOP[@]}" |
     xargs git for-each-ref --format="  $(format "normal")"
   fi
 fi
 
-if test "${#UNSTAGED[@]}" -ne 0; then
+if test "${#ON_TOPIC[@]}" -ne 0; then
   if test -n "$verbose"; then
-    echo "Unstaged topics:"
-    echo "  (use 'git topics stage <topic>' to promote to $DEVELOP)"
+    echo "Topics not yet merged:"
+    echo "  (use 'git topics integrate <topic>' to promote to $DEVELOP)"
     echo
-    echo "${UNSTAGED[@]}" |
+    echo "${ON_TOPIC[@]}" |
     xargs git for-each-ref --format="    $(format "red")"
     echo
   else
-    echo "${UNSTAGED[@]}" |
+    echo "${ON_TOPIC[@]}" |
     xargs git for-each-ref --format="? $(format "red")"
   fi
 fi

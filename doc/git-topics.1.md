@@ -21,22 +21,22 @@ gitworkflows(7). There are two main branches:
   project. Commits here may be shipped at any time.
 
 * _develop_:
-  A staging branch based on _master_ that is used to test changes before their
-  inclusion in _master_.
+  An integration branch based on _master_ that is used to test changes before
+  their inclusion in _master_.
 
 The names of these branches don't really matter. In fact, they are
 configurable, since there are many reasonable options. The documentation will
 refer to them by these canonical names, though.
 
-Commits should NOT be made directly on either of the main branches. Instead,
-each isolated topic (feature, bug fix, etc) should be worked on in its own
-branch. Each topic branch should fork off of _master_, since the eventual goal
-is to merge it back into a stable version. Each topic branch is named something
-semantically meaningful, possibly with some conventional prefix. For example,
-if John Doe is working on a topic "foo", he might reasonably name the branch
-simply _foo_, prefix it by a keyword like _topic/foo_ or _feature-foo_, or
-maybe prefix it by his initials like _jd/foo_. The important thing is that your
-project's convention is consistent and useful.
+Commits should not generally be made directly on either of the main branches.
+Instead, each isolated topic (feature, bug fix, etc) should be worked on in its
+own branch. Each topic branch should fork off of _master_, since the eventual
+goal is to merge it back into a stable version. Each topic branch is named
+something semantically meaningful, possibly with some conventional prefix. For
+example, if John Doe is working on a topic "foo", he might reasonably name the
+branch simply _foo_, prefix it by a keyword like _topic/foo_ or _feature-foo_,
+or maybe prefix it by his initials like _jd/foo_. The important thing is that
+your project's convention is consistent and useful.
 
 The general life cycle of a topic branch then goes:
 
@@ -48,7 +48,7 @@ The general life cycle of a topic branch then goes:
    to review.
 
 4. When the review is complete and your topic branch is reasonably stable, you
-   can stage your changes by merging the topic branch into _develop_. This
+   can integrate your changes by merging the topic branch into _develop_. This
    branch should then be used as a "playground" to test the new changes. Note
    that the topic branch DOES NOT get deleted at this point, in case testing
    reveals further changes you have to make.
@@ -83,14 +83,14 @@ practice while providing some other goodies.
 * git topics review <topic>:
   Push a topic branch upstream for review.
 
-* git topics stage <topic>:
-  Merge a topic branch to the staging branch.
+* git topics integrate <topic>:
+  Merge a topic branch to the integration branch.
 
 * git topics finish <topic>:
-  Merge a topic branch to the production-ready branch.
+  Merge a topic branch to the stable branch for release.
 
 * git topics release [major|minor|patch]:
-  Tag the production-ready branch with a new version.
+  Tag the stable branch with a new version.
 
 ## SEE ALSO
 

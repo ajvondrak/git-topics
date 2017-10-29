@@ -1,4 +1,4 @@
-# git-topics-release(1) -- Tag the production-ready branch with a new version
+# git-topics-release(1) -- Tag the stable branch with a new version
 
 ## SYNOPSIS
 

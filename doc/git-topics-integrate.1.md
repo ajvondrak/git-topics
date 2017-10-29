@@ -1,30 +1,30 @@
-# git-topics-stage(1) -- Merge a topic branch to the staging branch
+# git-topics-integrate(1) -- Merge a topic branch to the integration branch
 
 ## SYNOPSIS
 
-`git topics stage` <topic>
+`git topics integrate` <topic>
 
 ## DESCRIPTION
 
 Merges an existing, "reasonably" stable topic branch named <topic> to the
-_develop_ branch for beta testing & integration.
+_develop_ branch for testing & integration.
 
 The merge is done with the `--no-ff` flag, ensuring that a commit is always
-created to record the fact that this topic was staged. When the topic branch
-gets deleted, you'll still be able to recover its history from this merge
-commit.
+created to record the fact that this topic was integrated. When the topic
+branch gets deleted, you'll still be able to recover its history from this
+merge commit.
 
 Note that the topic branch will NOT be deleted here, in case issues are found
 while testing the code on _develop_. If there are issues, you should make
-further commits on the topic branch and `git topics stage` it again.
+further commits on the topic branch and `git topics integrate` it again.
 
-If _develop_ is tracking a remote branch, `git topics stage` makes an effort to
-ensure your local branch is up to date first. This avoids conflicts if you
-later push upstream. This is done with a `git fetch` of the corresponding
-remote branch. If the local branch is behind, the topic will not be merged. If
-the fetch itself fails, the topic will still be merged, but there will be a
-warning. That way, transient issues like internet connection problems won't get
-in the way of your development.
+If _develop_ is tracking a remote branch, `git topics integrate` makes an
+effort to ensure your local branch is up to date first. This avoids conflicts
+if you later push upstream. This is done with a `git fetch` of the
+corresponding remote branch. If the local branch is behind, the topic will not
+be merged. If the fetch itself fails, the topic will still be merged, but there
+will be a warning. That way, transient issues like internet connection problems
+won't get in the way of your development.
 
 Essentially, this command is equivalent to
 
@@ -38,7 +38,7 @@ is required, this command will stop short of actually merging the topic.
 
 ## MERGE CONFLICTS
 
-Aside from the sanity checks beforehand, `git topics stage` is really just
+Aside from the sanity checks beforehand, `git topics integrate` is really just
 equivalent to `git merge --no-ff`. Specifically, there are no further actions
 that the command performs after doing the merge. So in the event of a merge
 conflict (or any other condition that causes `git merge` to exit non-zero), you
@@ -71,7 +71,7 @@ merge conflicts:
 The "real" solution is generally to resolve merge conflicts as they happen,
 instead of trying to preempt them. As long as you're making the fixes already,
 you might as well record those in the merge commit itself: it's part of the
-history too, it's the most relevant place to record conflict resolutions (be
+history too. It's the most relevant place to record conflict resolutions (be
 sure to explain them in the commit message!), and you're guaranteed a merge
 commit via `--no-ff` regardless, which means the branch's history remains
 intact.
@@ -82,10 +82,10 @@ one-size-fits-all solution:
 * Perhaps topic A actually has a dependency on topic B, so you should merge B
   into A. See git-topics-use(1).
 
-* Evil merges don't just have a simple textual conflict, but rather a more
+* Evil merges involve not just a simple textual conflict, but rather a more
   "semantic" one (e.g., someone has changed the name of a variable you depend
-  on). One way to preempt such issues is to play with a throwaway integration
-  branch before staging your topic. See git-topics-integrate(1).
+  on). One way to preempt such issues is to play with a throwaway branch before
+  integrating your topic. See git-topics-experiment(1).
 
 * Maybe in some narrow case merging the upstream to your topic is actually
   appropriate.
