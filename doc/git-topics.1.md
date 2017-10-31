@@ -94,4 +94,4 @@ practice while providing some other goodies.
 
 ## SEE ALSO
 
-git(1), gitworkflows(7)
+git(1), gitworkflows(7), git-topics-management(7)
