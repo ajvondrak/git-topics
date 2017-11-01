@@ -1,29 +1,10 @@
 #!/usr/bin/env bash
 
-usage() {
-  echo >&2 "usage: git topics status [-r|--remotes] [-v|--verbose]"
-  echo >&2
-  echo >&2 "See 'git topics help status'."
-  exit 1
-}
+OPTIONS="[-a|--all] [-r|--remotes] [-s|--short] [-p|--porcelain]"
 
-OPTS_SPEC="
-Normalizes argv using git-rev-parse.
---
-v,verbose need an <arg-hint> or else git-rev-parse breaks
-r,remotes need an <arg-hint> or else git-rev-parse breaks
-"
-options="$(echo "$OPTS_SPEC" | git rev-parse --parseopt -- "$@" 2>/dev/null)"
-
-if test "$?" -ne 0; then
-  usage
-fi
-
-eval "$options"
 for option in "$@"; do
   case "$option" in
-    -r) remotes=1 ;;
-    -v) verbose=1 ;;
+    *) usage ;; # TODO
   esac
 done
 

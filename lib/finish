@@ -1,13 +1,8 @@
 #!/usr/bin/env bash
 
-usage() {
-  echo >&2 "usage: git topics finish <topic>"
-  echo >&2
-  echo >&2 "See 'git topics help finish'."
-  exit 1
-}
+OPTIONS="<topic>"
 
-if test $# != 1; then
+if test "$#" != 1; then
   usage
 fi
 

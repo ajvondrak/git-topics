@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-usage() {
-  echo >&2 "usage: git topics release [major|minor|patch]"
-  echo >&2
-  echo >&2 "See 'git topics help release'."
-  exit 1
-}
+OPTIONS="[major|minor|patch]"
 
 case "$1" in
   major|minor|patch) ;;

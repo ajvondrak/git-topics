@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 
-source "$(git --exec-path)/git-sh-setup"
+USAGE="[<command>] [<options>]
 
-usage() {
-  echo >&2 "usage: git topics [<command>] [<options>]"
-  echo >&2
-  echo >&2 "See 'git help topics'."
-  exit 1
-}
+See 'git help topics'."
+
+OPTIONS_SPEC=
+source "$(git --exec-path)/git-sh-setup"
 
 require_setup() {
   MASTER="$(git config git-topics.master)" &&
@@ -73,6 +71,12 @@ command="${1:-status}"
 source="$(lib "$command")"
 
 if test -f "$source"; then
+  usage() {
+    echo >&2 "usage: git topics $command $OPTIONS"
+    echo >&2
+    echo >&2 "See 'git topics help $command'."
+    exit 1
+  }
   shift
   source "$source"
 else

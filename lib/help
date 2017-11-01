@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-usage() {
-  echo >&2 "usage: git topics help [<command>]"
-  echo >&2
-  echo >&2 "See 'git topics help help'."
-  exit 1
-}
+OPTIONS="[<command>]"
 
 case "$#" in
   0) man git-topics ;;
