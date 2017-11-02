@@ -77,6 +77,12 @@ practice while providing some other goodies.
   misconfigured something or there was an error, you can start over with the
   `--force` flag.
 
+* git topics:
+  Shorthand for `git topics status`.
+
+* git topics status [-a|--all] [-r|--remotes] [-s|--short] [-p|--porcelain]:
+  Show the status of existing topic branches.
+
 * git topics start <topic>:
   Start a new topic branch.
 

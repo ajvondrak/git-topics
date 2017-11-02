@@ -2,109 +2,153 @@
 
 OPTIONS="[-a|--all] [-r|--remotes] [-s|--short] [-p|--porcelain]"
 
-for option in "$@"; do
-  case "$option" in
-    *) usage ;; # TODO
+eval "$(echo "
+git topics status [options]
+--
+a,all        list both local and remote topics
+r,remotes    list only remote topics
+s,short      output a short format
+p,porcelain  output a machine-readable format
+" | git rev-parse --parseopt --stuck-long -- "$@" 2>/dev/null || echo "usage")"
+
+patterns=("refs/heads")
+format="long"
+
+while test -n "$1"; do
+  case "$1" in
+    --all) shift; patterns=("refs/heads refs/remotes") ;;
+    --remotes) shift; patterns=("refs/remotes") ;;
+    --short) shift; format="short" ;;
+    --porcelain) shift; format="porcelain" ;;
+    --) shift; break ;;
+    *)
+      echo >&2 "BUG! Unrecognized option got through: $1"
+      exit 1
+      ;;
   esac
 done
 
 require_setup
 
-push_for() {
-  git rev-parse --symbolic-full-name "$1@{push}" 2>/dev/null
+refname() {
+  git rev-parse --symbolic-full-name "$1" 2>/dev/null
 }
 
-MASTER_PUSH="$(push_for "$MASTER")"
-DEVELOP_PUSH="$(push_for "$DEVELOP")"
+master_ref="$(refname "$MASTER")"
+master_pushref="$(refname "$MASTER@{push}")"
 
-not_a_topic_branch() {
+develop_ref="$(refname "$DEVELOP")"
+develop_pushref="$(refname "$DEVELOP@{push}")"
+
+not_a_topic() {
   case "$1" in
-    HEAD|refs/*/HEAD) return 0 ;;
-    "$MASTER_PUSH"|"$DEVELOP_PUSH") return 0 ;;
-    "refs/heads/$MASTER"|"refs/heads/$DEVELOP") return 0 ;;
+    refs/*/HEAD) return 0 ;;
+    "$master_ref"|"$master_pushref") return 0 ;;
+    "$develop_ref"|"$develop_pushref") return 0 ;;
     *) test -z "$(git merge-base "$MASTER" "$1")" ;;
   esac
 }
 
-ON_MASTER=()
-ON_DEVELOP=()
-ON_TOPIC=()
+on_master=()
+on_develop=()
+on_topic=()
 
 while read branch; do
-  if not_a_topic_branch "$branch"; then
+  if not_a_topic "$branch"; then
     continue
   elif git merge-base --is-ancestor "$branch" "$MASTER"; then
-    ON_MASTER+=("$branch")
+    on_master+=("$branch")
   elif git merge-base --is-ancestor "$branch" "$DEVELOP"; then
-    ON_DEVELOP+=("$branch")
+    on_develop+=("$branch")
   else
-    ON_TOPIC+=("$branch")
+    on_topic+=("$branch")
   fi
-done < <(
-  if test -n "$remotes"; then
-    git for-each-ref --format="%(refname)" refs/remotes
-  else
-    git for-each-ref --format="%(refname)" refs/heads
-  fi
-)
+done < <(echo "${patterns[@]}" | xargs git for-each-ref --format="%(refname)")
 
-if test -p /dev/stdout; then
-  stdout_is_tty="false"
-elif test -t 1; then
-  stdout_is_tty="true"
-else
-  stdout_is_tty="false"
+case "$format" in
+  long|short)
+    if test -p /dev/stdout; then
+      stdout_is_tty="false"
+    elif test -t 1; then
+      stdout_is_tty="true"
+    else
+      stdout_is_tty="false"
+    fi
+    colorize="$(git config --get-colorbool color.topics "$stdout_is_tty")"
+    ;;
+  porcelain)
+    colorize="false"
+    ;;
+esac
+
+if test "$colorize" = "true"; then
+  header="$(git config --get-color "color.topics.header" "normal")"
+  finished="$(git config --get-color "color.topics.finished" "green")"
+  integrated="$(git config --get-color "color.topics.integrated" "yellow")"
+  started="$(git config --get-color "color.topics.started" "red")"
+  reset="$(git config --get-color "" "reset")"
 fi
 
-color="$(git config --get-colorbool color.ui "$stdout_is_tty")"
-color() {
-  if test "$color" = "true"; then
-    echo "%(color:$1)"
-  fi
-}
-
-format() {
-  echo "$(color "$1")%(refname:short)"
-}
-
-if test "${#ON_MASTER[@]}" -ne 0; then
-  if test -n "$verbose"; then
-    echo "Topics merged to $MASTER:"
-    echo "  (use 'git topics release [major|minor|patch]' to tag a new version)"
-    echo
-    echo "${ON_MASTER[@]}" |
-    xargs git for-each-ref --format="    $(format "green")"
-    echo
-  else
-    echo "${ON_MASTER[@]}" |
-    xargs git for-each-ref --format="* $(format "green")"
-  fi
+if test "${#on_master[@]}" -ne 0; then
+  case "$format" in
+    long)
+      echo "${header}Topics merged to $MASTER:"
+      echo "  (use 'git topics release' to tag a new version)$reset"
+      echo
+      echo "${on_master[@]}" |
+      xargs git for-each-ref --format="    ${finished}%(refname:short)$reset"
+      echo
+      ;;
+    short|porcelain)
+      echo "${on_master[@]}" |
+      xargs git for-each-ref --format="* ${finished}%(refname:short)$reset"
+      ;;
+  esac
 fi
 
-if test "${#ON_DEVELOP[@]}" -ne 0; then
-  if test -n "$verbose"; then
-    echo "Topics merged to $DEVELOP:"
-    echo "  (use 'git topics finish <topic>' to promote to $MASTER)"
-    echo
-    echo "${ON_DEVELOP[@]}" |
-    xargs git for-each-ref --format="    $(format "normal")"
-    echo
-  else
-    echo "${ON_DEVELOP[@]}" |
-    xargs git for-each-ref --format="  $(format "normal")"
-  fi
+if test "${#on_develop[@]}" -ne 0; then
+  case "$format" in
+    long)
+      echo "${header}Topics merged to $DEVELOP:"
+      echo "  (use 'git topics finish' to promote to $MASTER)$reset"
+      echo
+      echo "${on_develop[@]}" |
+      xargs git for-each-ref --format="    ${integrated}%(refname:short)$reset"
+      echo
+      ;;
+    short|porcelain)
+      echo "${on_develop[@]}" |
+      xargs git for-each-ref --format="+ ${integrated}%(refname:short)$reset"
+      ;;
+  esac
 fi
 
-if test "${#ON_TOPIC[@]}" -ne 0; then
-  if test -n "$verbose"; then
-    echo "Topics not yet merged:"
-    echo "  (use 'git topics integrate <topic>' to promote to $DEVELOP)"
-    echo
-    echo "${ON_TOPIC[@]}" |
-    xargs git for-each-ref --format="    $(format "red")"
-    echo
-  else
-    echo "${ON_TOPIC[@]}" |
-    xargs git for-each-ref --format="? $(format "red")"
-  fi
+if test "${#on_topic[@]}" -ne 0; then
+  case "$format" in
+    long)
+      echo "${header}Topics not yet merged:"
+      echo "  (use 'git topics integrate' to promote to $DEVELOP)$reset"
+      echo
+      echo "${on_topic[@]}" |
+      xargs git for-each-ref --format="    ${started}%(refname:short)$reset"
+      echo
+      ;;
+    short|porcelain)
+      echo "${on_topic[@]}" |
+      xargs git for-each-ref --format="- ${started}%(refname:short)$reset"
+      ;;
+  esac
+fi
+
+if test "${#on_topic[@]}" -eq 0 &&
+   test "${#on_master[@]}" -eq 0 &&
+   test "${#on_develop[@]}" -eq 0; then
+  case "$format" in
+    long)
+      echo "${header}No topics found."
+      echo "Use 'git topics start' to create a new branch.$reset"
+      ;;
+    short|porcelain)
+      ;;
+  esac
 fi
