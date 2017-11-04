@@ -10,8 +10,9 @@ require_setup
 require_clean_work_tree "finish git topic"
 set_topic "$1"
 
-keep_up_to_date "$DEVELOP"
+keep_up_to_date "$TOPIC"
 
+keep_up_to_date "$DEVELOP"
 
 if ! git merge-base --is-ancestor "$TOPIC" "$DEVELOP"; then
   echo >&2 "Branch $TOPIC has not been merged to $DEVELOP."

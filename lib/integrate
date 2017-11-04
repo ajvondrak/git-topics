@@ -10,6 +10,7 @@ require_setup
 require_clean_work_tree "integrate git topic"
 set_topic "$1"
 
+keep_up_to_date "$TOPIC"
 keep_up_to_date "$DEVELOP"
 git checkout "$DEVELOP"
 git merge --no-ff "$TOPIC"

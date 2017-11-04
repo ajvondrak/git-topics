@@ -35,7 +35,8 @@ except that it only does a `git fetch`, not a full `git pull`, and only if
 there's a remote tracking branch. If a `git merge` from the upstream _master_
 is required, this command will stop short of actually merging the topic.
 
-The same sort of `git fetch` sanity check is run against the _develop_ branch
+The same sort of `git fetch` sanity check is run against the topic branch
+itself (in case there were any remote changes), as well as the _develop_ branch
 when checking if the topic has been integrated.
 
 ## MERGE CONFLICTS
