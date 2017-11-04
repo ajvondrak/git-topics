@@ -11,6 +11,7 @@ require_setup
 require_clean_work_tree "tag a new release"
 
 keep_up_to_date "$MASTER"
+git checkout "$MASTER"
 
 tip="$(git describe --exact-match --abbrev=0 "$MASTER" 2>/dev/null)" && {
   echo >&2 "The tip of the '$MASTER' branch is already tagged '$tip'."
@@ -37,6 +38,8 @@ case "$1" in
   patch) next_tag="$label$major.$minor.$((patch + 1))" ;;
 esac
 
+topics="$(git topics status --porcelain | grep '^\*' | sed 's/^\* //')"
+
 cat <<-TEMPLATE > "$GIT_DIR/TAG_EDITMSG"
 
 #
@@ -45,7 +48,7 @@ cat <<-TEMPLATE > "$GIT_DIR/TAG_EDITMSG"
 #
 # Releasing $next_tag (was $last_tag)
 # Topics to be released:
-#   TODO
+$(echo "$topics" | sed 's/^/#   /')
 TEMPLATE
 
 git_editor "$GIT_DIR/TAG_EDITMSG"
@@ -56,4 +59,37 @@ if test -s "$GIT_DIR/TAG_FINALMSG"; then
   git tag "$next_tag" "$MASTER" -F "$GIT_DIR/TAG_FINALMSG"
 else
   echo >&2 "Aborting release due to empty tag message."
+  exit 1
 fi
+
+pushremote_for() {
+  git config "branch.$1.pushremote" ||
+  git config "remote.pushdefault" ||
+  git config "branch.$1.remote" || {
+    echo >&2 "Branch $1 has no remote for pushing."
+    return 1
+  }
+}
+
+pushref_for() {
+  git config "branch.$1.merge" || {
+    echo >&2 "Branch $1 has no corresponding remote branch."
+    return 1
+  }
+}
+
+delete_remote_topic() {
+  local remote ref
+  remote="$(pushremote_for "$1")" || return 1
+  ref="$(pushref_for "$1")" || return 1
+  git push "$remote" --delete "$ref"
+}
+
+delete_local_topic() {
+  git branch --delete "$1"
+}
+
+while read topic; do
+  delete_remote_topic "$topic"
+  delete_local_topic "$topic"
+done < <(echo "$topics")

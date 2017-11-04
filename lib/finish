@@ -12,53 +12,16 @@ set_topic "$1"
 
 keep_up_to_date "$DEVELOP"
 
-integrated() {
-  git merge-base --is-ancestor "$TOPIC" "$DEVELOP"
-}
 
-if ! integrated; then
+if ! git merge-base --is-ancestor "$TOPIC" "$DEVELOP"; then
   echo >&2 "Branch $TOPIC has not been merged to $DEVELOP."
-  echo >&2 "Use 'git topics integrate $1' first and try again."
+  echo >&2 "Use 'git topics integrate $TOPIC' first and try again."
   exit 1
 fi
 
 keep_up_to_date "$MASTER"
 
-finished() {
-  git merge-base --is-ancestor "$TOPIC" "$MASTER"
-}
-
-if ! finished; then
+if ! git merge-base --is-ancestor "$TOPIC" "$MASTER"; then
   git checkout "$MASTER"
   git merge --no-ff "$TOPIC" || exit 1
 fi
-
-pushremote() {
-  git config "branch.$TOPIC.pushremote" ||
-  git config "remote.pushdefault" ||
-  git config "branch.$TOPIC.remote" || {
-    echo >&2 "Branch $TOPIC has no remote for pushing."
-    return 1
-  }
-}
-
-pushref() {
-  git config "branch.$TOPIC.merge" || {
-    echo >&2 "Branch $TOPIC has no corresponding remote branch."
-    return 1
-  }
-}
-
-delete_remote_topic() {
-  local remote ref
-  remote="$(pushremote)" || return 1
-  ref="$(pushref)" || return 1
-  git push "$remote" --delete "$ref"
-}
-
-delete_local_topic() {
-  git branch --delete "$TOPIC"
-}
-
-delete_remote_topic
-delete_local_topic

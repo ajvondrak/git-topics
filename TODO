@@ -1,11 +1,7 @@
 git topics setup
   hooks
-    prevents untagged master pushes
-    post-commit to trigger `git topics finish` in case of merge conflicts
-
-git topics release [major|minor|patch]
-  pre-populate tag message with the list of topics that are new to this tag
-  delete topics here instead of in `finish`
+    prevent untagged master pushes
+    prevent non-merge develop pushes
 
 git topics log
   git log --first-parent

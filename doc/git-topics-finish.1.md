@@ -14,8 +14,8 @@ The merge is done with the `--no-ff` flag, ensuring that a merge commit is
 always created. When the topic branch gets deleted, you'll still be able to
 recover its history from this merge commit.
 
-After successfully merging, the topic branch WILL be deleted. If it has an
-upstream set, the remote branch will be deleted too.
+Note that the topic branch will NOT be deleted here, in case you need to
+backtrack and "un-finish" a branch that should not go into the next release.
 
 If _master_ is tracking a remote branch, `git topics finish` makes an effort to
 ensure your local branch is up to date first. This avoids conflicts when you
@@ -30,8 +30,6 @@ Essentially, this command is equivalent to
     $ git checkout <master>
     $ git pull
     $ git merge --no-ff <topic>
-    $ git push <origin> --delete <topic>
-    $ git branch --delete <topic>
 
 except that it only does a `git fetch`, not a full `git pull`, and only if
 there's a remote tracking branch. If a `git merge` from the upstream _master_
@@ -42,26 +40,15 @@ when checking if the topic has been integrated.
 
 ## MERGE CONFLICTS
 
-`git topics finish` will only try to delete the topic branch after a SUCCESSFUL
-merge. Conflicts (or anything else that causes `git merge` to exit non-zero)
-will make `git topics finish` stop short of cleaning up the topic branch. Merge
-conflicts may be resolved in the usual ways, but this command will be none the
-wiser. To finish the branch cleanup after a merge conflict, you may run `git
-topics finish` again.
-
-Alternatively, you could use a post-commit hook that runs this command if it
-looks like you're making a merge commit on _master_. This way, after you fix a
-merge conflict and `git commit` the result, `git topics finish` will
-automatically be reinvoked to pick up where it left off.
-
-The general notes about merge conflicts in the git-topics-integrate(1) manual
-apply here, too. Additionally, note that merging a topic into _master_ may not
-be exactly the same as merging into _develop_. For example, features A & B
-might be merged to _develop_ for testing, and they may have conflicts with each
-other. But then if you decide to only release feature A, these conflicts won't
-exist on _master_. So be careful about how you coordinate dependencies between
-multiple topics (e.g., see git-topics-use(1)).
+The discussion about merge conflicts in the git-topics-integrate(1) manual
+applies to `git topics finish`, too. Additionally, note that merging a topic
+into _master_ may not be exactly the same as merging into _develop_. For
+example, features A & B might be merged to _develop_ for testing, and they may
+have conflicts with each other. But then if you decide to only release feature
+A, these conflicts won't exist on _master_. So be careful about how you
+coordinate dependencies between multiple topics; git-rerere(1) and
+git-topics-use(1) may be helpful.
 
 ## SEE ALSO
 
-git-topics(1), git-merge(1), git-checkout(1), git-fetch(1), git-pull(1), githooks(5)
+git-topics(1), git-merge(1), git-checkout(1), git-fetch(1), git-pull(1), git-rerere(1)
