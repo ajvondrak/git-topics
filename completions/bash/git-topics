@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+_git_topics() {
+  local commands="finish help integrate release review setup start status"
+  local command="$(__git_find_on_cmdline "$commands")"
+
+  if test -z "$command"; then
+    __gitcomp "$commands"
+    return
+  fi
+
+  case "$command" in
+    finish) __git_topics_finish ;;
+    help) __git_topics_help ;;
+    integrate) __git_topics_integrate ;;
+    release) __git_topics_release ;;
+    review) __git_topics_review ;;
+    setup) __git_topics_setup ;;
+    start) __git_topics_start ;;
+    status) __git_topics_status ;;
+    *) COMPREPLY=() ;;
+  esac
+}
+
+__git_topics_finish() {
+  __gitcomp "$(
+    __git topics status --all --porcelain | grep '^+' | sed 's/^+ //'
+  )"
+}
+
+__git_topics_help() {
+  __gitcomp "finish help integrate release review setup start status management"
+}
+
+__git_topics_integrate() {
+  __gitcomp "$(
+    __git topics status --all --porcelain | grep '^-' | sed 's/^- //'
+  )"
+}
+
+__git_topics_release() {
+  __gitcomp "major minor patch"
+}
+
+__git_topics_review() {
+  __gitcomp "$(
+    __git topics status --all --porcelain | grep '^-' | sed 's/^- //'
+  )"
+}
+
+__git_topics_setup() {
+  case "$cur" in
+    --*) __gitcomp "--force" ;;
+  esac
+}
+
+__git_topics_start() {
+  __git_complete_refs
+}
+
+__git_topics_status() {
+  __gitcomp "--all --remotes --short --porcelain"
+}

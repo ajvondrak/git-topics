@@ -1,0 +1,116 @@
+#compdef git-topics
+#description Manage topic branches
+
+_git-topics() {
+  local curcontext="$curcontext" state line
+  declare -A opt_args
+
+  _arguments -C -S -s \
+    ":command:->command" \
+    "*::options:->options"
+
+  case "$state" in
+    command)
+      local -a commands
+      commands=(
+        finish:"Merge a topic branch to the stable branch"
+        help:"Display help for a git-topics command"
+        integrate:"Merge a topic branch to the integration branch"
+        release:"Tag the stable branch with a new version"
+        review:"Push a topic branch upstream for review"
+        setup:"Configure git-topics"
+        start:"Start a new topic branch"
+        status:"Show the status of existing topic branches"
+      )
+      _describe -t commands "git topics" commands
+      ;;
+    options)
+      case $line[1] in
+        finish) __git_topics_finish ;;
+        help) __git_topics_help ;;
+        integrate) __git_topics_integrate ;;
+        release) __git_topics_release ;;
+        review) __git_topics_review ;;
+        setup) __git_topics_setup ;;
+        start) __git_topics_start ;;
+        status) __git_topics_status ;;
+      esac
+  esac
+}
+
+__git_topics_finish() {
+  _arguments -C -S -s ":topic:__integrated_topics"
+}
+
+__git_topics_help() {
+  local -a commands
+  commands=(
+    finish
+    help
+    integrate
+    release
+    review
+    setup
+    start
+    status
+  )
+  local -a guides
+  guides=(
+    management
+  )
+  _alternative "commands:command:($commands)" "guides:guide:($guides)"
+}
+
+__git_topics_integrate() {
+  _arguments -C -S -s ":topic:__started_topics"
+}
+
+__git_topics_release() {
+  _alternative "versions:version:(major minor patch)"
+}
+
+__git_topics_review() {
+  _arguments -C -S -s ":topic:__started_topics"
+}
+
+__git_topics_setup() {
+  _arguments -C -S -s {-f,--force}"[force setup to start over again]"
+}
+
+__git_topics_start() {
+  _default
+}
+
+__git_topics_status() {
+  _arguments -C -S -s \
+    {-a,--all}"[list both local and remote topics]" \
+    {-r,--remotes}"[list only remote topics]" \
+    {-s,--short}"[output a short format]" \
+    {-p,--porcelain}"[output a machine-readable format]"
+}
+
+__started_topics() {
+  local expl
+  local -a topics
+	topics=(${${(f)"$(_call_program topics \
+    git topics status --all --porcelain | grep '^-' | sed 's/^- //' 2>/dev/null
+  )"}})
+	__git_command_successful && _wanted topics expl "topic" compadd $topics
+}
+
+__integrated_topics() {
+  local expl
+  local -a topics
+	topics=(${${(f)"$(_call_program topics \
+    git topics status --all --porcelain | grep '^+' | sed 's/^+ //' 2>/dev/null
+  )"}})
+	__git_command_successful && _wanted topics expl "topic" compadd $topics
+}
+
+__git_command_successful() {
+  if (( ${#pipestatus:#0} > 0 )); then
+    _message "not a git repository"
+    return 1
+  fi
+  return 0
+}

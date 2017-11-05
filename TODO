@@ -31,5 +31,5 @@ git topics reintegrate
 README.md
   Installation
     Figure out how to make this `brew install`-able
-    bash completion
-    zsh completion
+      https://github.com/Homebrew/legacy-homebrew/issues/16992
+  Split out the background/rationale
