@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+VERSION='0.0.1'
+
+if ! command -v ronn >/dev/null 2>&1; then
+  echo >&2 "Before building, you need to install ronn:"
+  echo >&2 "  https://github.com/rtomayko/ronn/blob/master/INSTALLING"
+  exit 1
+fi
+
+echo >&2 "Generating manpages..."
+if ! test -d man; then
+  mkdir man
+fi
+ronn --roff ronn/*
+for file in ronn/*.{1,2,3,4,5,6,7}; do
+  if test -f "$file"; then
+    man="man/$(basename "$file")"
+    echo >&2 "     move: $file -> $man"
+    mv "$file" "$man"
+  fi
+done
+
+echo >&2
+build="builds/git-topics-$VERSION.tar.gz"
+
+echo >&2 "Generating $build..."
+if ! test -d builds; then
+  mkdir builds
+fi
+tar -cvzf "$build" completions libexec man 2> >(sed 's/^/     /')
+
+echo >&2
+echo >&2 "SHA-256: $(shasum -a 256 "$build" | cut -d' ' -f1)"
