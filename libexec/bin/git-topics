@@ -67,7 +67,7 @@ lib() {
   cd "$cwd"
 }
 
-command="${1:-status}"
+command="${1:-list}"
 source="$(lib "$command")"
 
 if test -f "$source"; then

@@ -78,10 +78,10 @@ practice while providing some other goodies.
   `--force` flag.
 
 * git topics:
-  Shorthand for `git topics status`.
+  Shorthand for `git topics list`.
 
-* git topics status [-a|--all] [-r|--remotes] [-s|--short] [-p|--porcelain]:
-  Show the status of existing topic branches.
+* git topics list [-a|--all] [-r|--remote] [-s|--short] [-p|--porcelain]:
+  List existing topic branches and their statuses.
 
 * git topics start <topic>:
   Start a new topic branch.

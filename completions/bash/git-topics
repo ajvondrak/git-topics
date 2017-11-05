@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 _git_topics() {
-  local commands="finish help integrate release review setup start status"
+  local commands="finish help integrate list release review setup start"
   local command="$(__git_find_on_cmdline "$commands")"
 
   if test -z "$command"; then
@@ -13,29 +13,33 @@ _git_topics() {
     finish) __git_topics_finish ;;
     help) __git_topics_help ;;
     integrate) __git_topics_integrate ;;
+    list) __git_topics_list ;;
     release) __git_topics_release ;;
     review) __git_topics_review ;;
     setup) __git_topics_setup ;;
     start) __git_topics_start ;;
-    status) __git_topics_status ;;
     *) COMPREPLY=() ;;
   esac
 }
 
 __git_topics_finish() {
   __gitcomp "$(
-    __git topics status --all --porcelain | grep '^+' | sed 's/^+ //'
+    __git topics list --all --porcelain | grep '^+' | sed 's/^+ //'
   )"
 }
 
 __git_topics_help() {
-  __gitcomp "finish help integrate release review setup start status management"
+  __gitcomp "finish help integrate list release review setup start management"
 }
 
 __git_topics_integrate() {
   __gitcomp "$(
-    __git topics status --all --porcelain | grep '^-' | sed 's/^- //'
+    __git topics list --all --porcelain | grep '^-' | sed 's/^- //'
   )"
+}
+
+__git_topics_list() {
+  __gitcomp "--all --remote --short --porcelain"
 }
 
 __git_topics_release() {
@@ -44,7 +48,7 @@ __git_topics_release() {
 
 __git_topics_review() {
   __gitcomp "$(
-    __git topics status --all --porcelain | grep '^-' | sed 's/^- //'
+    __git topics list --all --porcelain | grep '^-' | sed 's/^- //'
   )"
 }
 
@@ -56,8 +60,4 @@ __git_topics_setup() {
 
 __git_topics_start() {
   __git_complete_refs
-}
-
-__git_topics_status() {
-  __gitcomp "--all --remotes --short --porcelain"
 }

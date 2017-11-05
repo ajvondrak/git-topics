@@ -16,11 +16,11 @@ _git-topics() {
         finish:"Merge a topic branch to the stable branch"
         help:"Display help for a git-topics command"
         integrate:"Merge a topic branch to the integration branch"
+        list:"List existing topic branches and their statuses"
         release:"Tag the stable branch with a new version"
         review:"Push a topic branch upstream for review"
         setup:"Configure git-topics"
         start:"Start a new topic branch"
-        status:"Show the status of existing topic branches"
       )
       _describe -t commands "git topics" commands
       ;;
@@ -29,11 +29,11 @@ _git-topics() {
         finish) __git_topics_finish ;;
         help) __git_topics_help ;;
         integrate) __git_topics_integrate ;;
+        list) __git_topics_list ;;
         release) __git_topics_release ;;
         review) __git_topics_review ;;
         setup) __git_topics_setup ;;
         start) __git_topics_start ;;
-        status) __git_topics_status ;;
       esac
   esac
 }
@@ -48,11 +48,11 @@ __git_topics_help() {
     finish
     help
     integrate
+    list
     release
     review
     setup
     start
-    status
   )
   local -a guides
   guides=(
@@ -63,6 +63,14 @@ __git_topics_help() {
 
 __git_topics_integrate() {
   _arguments -C -S -s ":topic:__started_topics"
+}
+
+__git_topics_list() {
+  _arguments -C -S -s \
+    {-a,--all}"[list both local and remote topics]" \
+    {-r,--remote}"[list only remote topics]" \
+    {-s,--short}"[output a short format]" \
+    {-p,--porcelain}"[output a machine-readable format]"
 }
 
 __git_topics_release() {
@@ -81,19 +89,11 @@ __git_topics_start() {
   _default
 }
 
-__git_topics_status() {
-  _arguments -C -S -s \
-    {-a,--all}"[list both local and remote topics]" \
-    {-r,--remotes}"[list only remote topics]" \
-    {-s,--short}"[output a short format]" \
-    {-p,--porcelain}"[output a machine-readable format]"
-}
-
 __started_topics() {
   local expl
   local -a topics
 	topics=(${${(f)"$(_call_program topics \
-    git topics status --all --porcelain | grep '^-' | sed 's/^- //' 2>/dev/null
+    git topics list --all --porcelain | grep '^-' | sed 's/^- //' 2>/dev/null
   )"}})
 	__git_command_successful && _wanted topics expl "topic" compadd $topics
 }
@@ -102,7 +102,7 @@ __integrated_topics() {
   local expl
   local -a topics
 	topics=(${${(f)"$(_call_program topics \
-    git topics status --all --porcelain | grep '^+' | sed 's/^+ //' 2>/dev/null
+    git topics list --all --porcelain | grep '^+' | sed 's/^+ //' 2>/dev/null
   )"}})
 	__git_command_successful && _wanted topics expl "topic" compadd $topics
 }

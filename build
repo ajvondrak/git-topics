@@ -12,6 +12,7 @@ echo >&2 "Generating manpages..."
 if ! test -d man; then
   mkdir man
 fi
+rm man/*
 ronn --roff ronn/*
 for file in ronn/*.{1,2,3,4,5,6,7}; do
   if test -f "$file"; then

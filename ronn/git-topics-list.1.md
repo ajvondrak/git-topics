@@ -1,15 +1,15 @@
-# git-topics-status(1) -- Show the status of existing topic branches
+# git-topics-list(1) -- List existing topic branches and their statuses
 
 ## SYNOPSIS
 
 `git topics`
 
-`git topics status` [options]
+`git topics list` [options]
 
 ## DESCRIPTION
 
-Display the topic status of branches that are based off of _master_. The topic
-status depends on where the branch has been merged:
+Displays branches that are based off of _master_ alongside the topic's status.
+The status depends on where the branch has been merged:
 
 * If merged to _master_ (presumably by way of `git topics finish`), the topic
   is finished and waiting to go out in the next release.
@@ -20,11 +20,11 @@ status depends on where the branch has been merged:
 * Otherwise, the topic has only been started (presumably by way of `git topics
   start`), so it's still in development and waiting to be integrated.
 
-By default, the status of each local branch is shown.
+By default, the status of each local branch is output in the long format.
 
 ## OPTIONS
 
-* -r, --remotes:
+* -r, --remote:
   Display the statuses of remote-tracking branches only.
 
 * -a, --all:
@@ -69,7 +69,7 @@ The porcelain format is the same as the short format, except:
    porcelain format is guaranteed not to change in a backwards-incompatible
    way.
 
- This makes it ideal for use by scripts.
+This makes it ideal for use by scripts.
 
 ## CONFIGURATION
 

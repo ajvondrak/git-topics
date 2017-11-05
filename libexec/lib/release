@@ -38,7 +38,7 @@ case "$1" in
   patch) next_tag="$label$major.$minor.$((patch + 1))" ;;
 esac
 
-topics="$(git topics status --porcelain | grep '^\*' | sed 's/^\* //')"
+topics="$(git topics list --porcelain | grep '^\*' | sed 's/^\* //')"
 
 cat <<-TEMPLATE > "$GIT_DIR/TAG_EDITMSG"
 

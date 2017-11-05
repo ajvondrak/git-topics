@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
-OPTIONS="[-a|--all] [-r|--remotes] [-s|--short] [-p|--porcelain]"
+OPTIONS="[-a|--all] [-r|--remote] [-s|--short] [-p|--porcelain]"
 
 eval "$(echo "
-git topics status [options]
+git topics list [options]
 --
-a,all        list both local and remote topics
-r,remotes    list only remote topics
-s,short      output a short format
-p,porcelain  output a machine-readable format
+a,all       list both local and remote topics
+r,remote    list only remote topics
+s,short     output a short format
+p,porcelain output a machine-readable format
 " | git rev-parse --parseopt --stuck-long -- "$@" 2>/dev/null || echo "usage")"
 
 patterns=("refs/heads")
@@ -17,7 +17,7 @@ format="long"
 while test -n "$1"; do
   case "$1" in
     --all) shift; patterns=("refs/heads refs/remotes") ;;
-    --remotes) shift; patterns=("refs/remotes") ;;
+    --remote) shift; patterns=("refs/remotes") ;;
     --short) shift; format="short" ;;
     --porcelain) shift; format="porcelain" ;;
     --) shift; break ;;
