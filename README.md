@@ -34,7 +34,7 @@ It took me an embarrassingly long time to hap across the man page sitting right 
 * `maint` is unnecessary for my use case. Since my team's projects are generally just web apps with only one version ever running in production, we don't need to backport any fixes to old codebases - just use `master`.
 * `master` becomes the most stable branch if we ditch `maint`. Versions are still cut using the same tagging practices I know & love from GitFlow.
 * `next` corresponds to `develop` in GitFlow terminology.
-* `pu` is optional in the first place, but still a good idea for "playing around" with merging together multiple features before pushing to `next`. It doesn't otherwise factor into the workflow too heavily, so its use can be relegated to a side utility (i.e., `git topics experiment`).
+* `pu` is optional in the first place, but still a good idea for "playing around" with merging together multiple features before pushing to `next`. It doesn't otherwise factor into the workflow too heavily, so its use can be relegated to a side utility (i.e., `git topics reintegrate --onto pu`).
 
 Effectively, GitFlow's `master` and `develop` are still the key players. All that's left is a straightforward approach that leverages exactly what git is good at: topic branches.
 

@@ -47,8 +47,7 @@ into _master_ may not be exactly the same as merging into _develop_. For
 example, features A & B might be merged to _develop_ for testing, and they may
 have conflicts with each other. But then if you decide to only release feature
 A, these conflicts won't exist on _master_. So be careful about how you
-coordinate dependencies between multiple topics; git-rerere(1) and
-git-topics-use(1) may be helpful.
+coordinate dependencies between multiple topics; git-rerere(1) may be helpful.
 
 ## SEE ALSO
 

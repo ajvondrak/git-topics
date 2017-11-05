@@ -3,28 +3,13 @@ git topics setup
     prevent untagged master pushes
     prevent non-merge develop pushes
 
-git topics log
-  git log --first-parent
-  how fancy can this get?
-
-git topics use <name>
-  git merge topic/<name>
-  presumably invoked while on some other topic branch
-
-git topics experiment <name>...
-  clobber pu branch if it exists
-  git checkout -b pu master
-  git merge --no-ff topic/<name>...
-  how fancy can this get?
-
 git topics reintegrate
   git checkout next
   git reset --hard master
   git merge every previously integrated topic
-  --interactive
     like git rebase -i, just select which topics you want to reintegrate
   --onto <branch>
-    combined with --interactive, could be used to implement `experiment`
+    for experimental uses like `git topics reintegrate --onto throwaway`
   --continue | --skip | --abort | --quit | --edit-todo
     like the counterparts in git rebase
 

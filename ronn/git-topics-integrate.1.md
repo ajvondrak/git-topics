@@ -82,13 +82,23 @@ intact.
 As always, evaluate your needs on a case by case basis. There's no
 one-size-fits-all solution:
 
-* Perhaps topic A actually has a dependency on topic B, so you should merge B
-  into A. See git-topics-use(1).
+* Typically, you want topics to be independent from each other, just to make
+  things easier to manage. But if topic A actually depends on topic B, the
+  order in which they're merged into _master_ or _develop_ becomes important.
+  You might smooth out this ordering issue by first merging B into A, which
+  guarantees that B's changes (at least at the time of the merge) are included
+  in A. Then you need only merge A into _master_ or _develop_, which will
+  automatically pull in B's changes due to that first merge. This can make your
+  history quite tangled, though. As of yet, git-topics has no builtin commands
+  to handle this case: if you know your workflow is complex enough to require
+  inter-topic merges, you probably know how to do that with regular git
+  commands already.
 
 * Evil merges involve not just a simple textual conflict, but rather a more
   "semantic" one (e.g., someone has changed the name of a variable you depend
   on). One way to preempt such issues is to play with a throwaway branch before
-  integrating your topic. See git-topics-experiment(1).
+  integrating your topic, which you could do with `git topics reintegrate
+  --onto throwaway`. See git-topics-reintegrate(1).
 
 * Maybe in some narrow case merging the upstream to your topic is actually
   appropriate.
@@ -98,7 +108,7 @@ one-size-fits-all solution:
   again with a cleaner patch set and/or history.
 
 * Of course, you could always make additional commits to your topic before
-  merging.
+  merging to preempt some bad conflicts.
 
 * In certain situations, you just need to copy over a certain commit with `git
   cherry-pick`. This should be infrequent with proper branch management,
