@@ -12,9 +12,3 @@ git topics reintegrate
     for experimental uses like `git topics reintegrate --onto throwaway`
   --continue | --skip | --abort | --quit | --edit-todo
     like the counterparts in git rebase
-
-README.md
-  Installation
-    Figure out how to make this `brew install`-able
-      https://github.com/Homebrew/legacy-homebrew/issues/16992
-  Split out the background/rationale
