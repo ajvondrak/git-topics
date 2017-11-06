@@ -5,10 +5,10 @@ OPTIONS="[-a|--all] [-r|--remote] [-s|--short] [-p|--porcelain]"
 eval "$(echo "
 git topics list [options]
 --
-a,all       list both local and remote topics
-r,remote    list only remote topics
-s,short     output a short format
-p,porcelain output a machine-readable format
+a,all!       list both local and remote topics
+r,remote!    list only remote topics
+s,short!     output a short format
+p,porcelain! output a machine-readable format
 " | git rev-parse --parseopt --stuck-long -- "$@" 2>/dev/null || echo "usage")"
 
 patterns=("refs/heads")
