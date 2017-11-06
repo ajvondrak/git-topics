@@ -40,20 +40,28 @@ esac
 
 topics="$(git topics list --porcelain | grep '^\*' | sed 's/^\* //')"
 
-cat <<-TEMPLATE > "$GIT_DIR/TAG_EDITMSG"
+comment_char="$(git config --get core.commentchar 2>/dev/null)"
 
-#
-# Please enter the tag message for your release. Lines starting
-# with '#' will be ignored, and an empty message aborts the release.
-#
-# Releasing $next_tag (was $last_tag)
-# Topics to be released:
-$(echo "$topics" | sed 's/^/#   /')
-TEMPLATE
+case "$comment_char" in
+  "" | auto) comment_char="#" ;;
+  ?) ;;
+  *) comment_char=$(echo "$comment_char" | cut -c1) ;;
+esac
+
+echo >"$GIT_DIR/TAG_EDITMSG"
+echo "
+Please enter the tag message for your release. Lines starting with
+'$comment_char' will be ignored, and an empty message aborts the release.
+
+Releasing $next_tag (was $last_tag)
+
+Topics to be released:
+$(echo "$topics" | sed "s/^/  /")
+" | git stripspace --comment-lines >>"$GIT_DIR/TAG_EDITMSG"
 
 git_editor "$GIT_DIR/TAG_EDITMSG"
-grep -v "^#" < "$GIT_DIR/TAG_EDITMSG" |
-git stripspace > "$GIT_DIR/TAG_FINALMSG"
+cat "$GIT_DIR/TAG_EDITMSG" |
+git stripspace --strip-comments >"$GIT_DIR/TAG_FINALMSG"
 
 if test -s "$GIT_DIR/TAG_FINALMSG"; then
   git tag "$next_tag" "$MASTER" -F "$GIT_DIR/TAG_FINALMSG"
