@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+require_clean_work_tree "reintegrate"
+
+if ! git show-ref --quiet --verify -- "refs/heads/$branch"; then
+  git branch "$branch" "$MASTER" || exit "$?"
+fi
+
+mkdir -p "$state" || {
+  echo >&2 "fatal: could not create temporary state directory - $state"
+  exit 1
+}
+
+git rev-parse "$branch" >"$orig" || exit "$?"
+
+echo "$branch" >"$onto"
+
+echo "$(
+  git topics list --porcelain |
+  grep -v "^* " |
+  sed "s/^+ /pick /" |
+  sed "s/^- /drop /"
+)" >"$todo"
+
+EXTRA_INSTRUCTIONS="
+If you drop every line, the reintegration will be aborted without any effect on
+the $branch branch.
+"
+
+edit_todo
+
+test -s "$todo" || finished "Reintegration aborted due to empty todo list"
+
+git checkout --quiet "$branch" || exit "$?"
+ensure_correct_branch
+
+echo "Rewinding $branch..."
+git reset --quiet --hard "$MASTER" || exit "$?"
+
+process_todo

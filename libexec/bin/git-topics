@@ -90,6 +90,14 @@ lib() {
 }
 
 command="${1:-list}"
+
+case "$command" in
+  *--*)
+    echo >&2 "git-topics: '$command' is not a command."
+    usage
+    ;;
+esac
+
 source="$(lib "$command")"
 
 if test -f "$source"; then

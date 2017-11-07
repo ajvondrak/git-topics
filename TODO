@@ -4,11 +4,4 @@ git topics setup
     prevent non-merge develop pushes
 
 git topics reintegrate
-  git checkout next
-  git reset --hard master
-  git merge every previously integrated topic
-    like git rebase -i, just select which topics you want to reintegrate
-  --onto <branch>
-    for experimental uses like `git topics reintegrate --onto throwaway`
-  --continue | --skip | --abort | --quit | --edit-todo
-    like the counterparts in git rebase
+  syntax highlighting for todo list

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+EXTRA_INSTRUCTIONS="
+You are editing the todo file of an ongoing git-topics reintegration.
+To continue after editing, run:
+    $dashless $command --continue
+"
+
+edit_todo

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
 _git_topics() {
-  local commands="finish help integrate list release review setup start"
+  local commands="
+    finish help integrate list reintegrate release review setup start
+  "
   local command="$(__git_find_on_cmdline "$commands")"
 
   if test -z "$command"; then
@@ -14,6 +16,7 @@ _git_topics() {
     help) __git_topics_help ;;
     integrate) __git_topics_integrate ;;
     list) __git_topics_list ;;
+    reintegrate) __git_topics_reintegrate ;;
     release) __git_topics_release ;;
     review) __git_topics_review ;;
     setup) __git_topics_setup ;;
@@ -29,7 +32,10 @@ __git_topics_finish() {
 }
 
 __git_topics_help() {
-  __gitcomp "finish help integrate list release review setup start management"
+  __gitcomp "
+    finish help integrate list reintegrate release review setup start
+    management
+  "
 }
 
 __git_topics_integrate() {
@@ -40,6 +46,18 @@ __git_topics_integrate() {
 
 __git_topics_list() {
   __gitcomp "--all --remote --short --porcelain"
+}
+
+__git_topics_reintegrate() {
+  __git_find_repo_path
+  if test -d "$__git_repo_path/git-topics-reintegrate"; then
+    __gitcomp "--continue --skip --abort --quit --edit-todo"
+    return
+  fi
+  case "$cur" in
+    --*) __gitcomp "--onto" ;;
+    *) __git_complete_refs ;;
+  esac
 }
 
 __git_topics_release() {

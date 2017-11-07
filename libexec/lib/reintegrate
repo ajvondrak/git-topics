@@ -1,0 +1,265 @@
+#!/usr/bin/env bash
+
+# This implementation is heavily inspired by `git rebase --interactive`:
+#   * https://github.com/git/git/blob/master/git-rebase.sh
+#   * https://github.com/git/git/blob/master/git-rebase--interactive.sh
+
+require_setup
+
+# The temporary directory where we store the state of an in-progress
+# reintegration.
+state="$GIT_DIR/git-topics-reintegrate"
+
+# The branch we should reintegrate onto (default: $DEVELOP).
+branch=
+
+# The file where we store $branch.
+onto="$state/onto"
+
+# The file where we store the SHA-1 hash of the original HEAD of $branch.
+orig="$state/orig"
+
+# The file containing reintegration instructions. As lines are processed, they
+# are removed from the front of this file and written to the tail of $done.
+todo="$state/todo"
+
+# The file containing todo lines that have finished processing.
+done="$state/done"
+
+git_sequence_editor() {
+  if test -z "$GIT_SEQUENCE_EDITOR"; then
+    GIT_SEQUENCE_EDITOR="$(git config sequence.editor)"
+    if test -z "$GIT_SEQUENCE_EDITOR"; then
+      GIT_SEQUENCE_EDITOR="$(git var GIT_EDITOR)" || return "$?"
+    fi
+  fi
+
+  eval "$GIT_SEQUENCE_EDITOR" '"$@"'
+}
+
+BASIC_INSTRUCTIONS="
+Instructions:
+p, pick = merge branch
+d, drop = do not merge branch
+
+These lines can be re-ordered; they are executed from top to bottom.
+
+If you remove a line, that branch will not be merged. Either way, the branch
+itself won't be affected by the reintegration, so feel free to remove lines
+instead of using 'drop'.
+"
+
+EXTRA_INSTRUCTIONS=
+
+instructions() {
+  printf "\n"
+  printf "Reintegrating topics onto $branch" | git stripspace --comment-lines
+  printf "$BASIC_INSTRUCTIONS" | git stripspace --comment-lines
+  printf "$EXTRA_INSTRUCTIONS" | git stripspace --comment-lines
+}
+
+sanitized() {
+  git stripspace --strip-comments < "$1" |
+  sed "/^$/d" |
+  sed "/^d .*$/d" |
+  sed "/^drop .*$/d" |
+  sed "s/^p /pick /"
+}
+
+edit_todo() {
+  cp -f "$todo" "$todo.new"
+  instructions >> "$todo.new"
+  git_sequence_editor "$todo.new" || die "Could not execute editor"
+  sanitized "$todo.new" > "$todo"
+  rm -f "$todo.new"
+}
+
+process_todo() {
+  while true; do
+    next_todo
+  done
+}
+
+next_todo() {
+  test -s "$todo" || finished "Reintegrated $branch"
+  local instruction topic
+  read -r instruction topic < "$todo"
+  git show-ref --verify --quiet -- "refs/heads/$topic" ||
+    invalid_todo "$instruction" "$topic"
+  case "$instruction" in
+    p|pick) pick "$topic" ;;
+    d|drop) drop "$topic" ;;
+    *) invalid_todo "$instruction" "$topic" ;;
+  esac
+}
+
+invalid_todo() {
+  echo >&2 "Invalid todo line:"
+  echo >&2 "    $1 $2"
+  echo >&2
+  echo >&2 "Either the instruction or the branch name is invalid. Fix it with"
+  echo >&2 "    $dashless $command --edit-todo"
+  echo >&2
+  echo >&2 "See '$dashless help $command'."
+  exit 1
+}
+
+finished() {
+  echo "$1"
+  rm -rf "$state"
+  exit
+}
+
+pick() {
+  progressing
+  git merge --rerere-autoupdate --quiet --no-ff --no-edit "$1" || fix_conflicts
+}
+
+fix_conflicts() {
+  echo >&2
+  echo >&2 "After resolving conflicts, continue the reintegration with"
+  echo >&2 "    $dashless $command --continue"
+  echo >&2
+  echo >&2 "See '$dashless help $command'."
+  exit 1
+}
+
+drop() {
+  progressing
+}
+
+progressing() {
+  local instruction topic
+  read -r instruction topic < "$todo"
+
+  sed -e "1q" < "$todo" >> "$done"
+  sed -e "1d" < "$todo" >> "$todo.new"
+  mv -f "$todo.new" "$todo"
+
+  local todos dones
+  todos="$(grep -c '^' "$todo")"
+  dones="$(grep -c '^' "$done")"
+  echo "Reintegrating $topic ($dones/$(($todos + $dones)))"
+}
+
+ensure_correct_branch() {
+  local actual expect
+
+  actual="$(git rev-parse --symbolic-full-name HEAD 2>/dev/null)" || {
+    echo >&2 "fatal: could not read HEAD"
+    exit 1
+  }
+
+  expect="$(git rev-parse --symbolic-full-name "$branch" 2>/dev/null)" || {
+    echo >&2 "There appears to be a reintegration onto '$branch' in progress,"
+    echo >&2 "but that branch seems to have gone away."
+    echo >&2
+    echo >&2 "See '$dashless help $command'."
+    exit 1
+  }
+
+  if test "$actual" != "$expect"; then
+    echo >&2 "There appears to be a reintegration onto '$branch' in progress."
+    echo >&2 "Check that branch out before using '$dashless $command':"
+    echo >&2 "    git checkout $branch"
+    echo >&2
+    echo >&2 "See '$dashless help $command'."
+    exit 1
+  fi
+}
+
+if test -d "$state"; then
+  in_progress=t
+  OPTIONS="(--continue | --skip | --abort | --quit | --edit-todo)"
+else
+  in_progress=
+  OPTIONS="[--onto <branch>]"
+fi
+
+OPTIONS_SPEC="\
+$dashless $command [--onto <branch>]
+$dashless $command (--continue | --skip | --abort | --quit | --edit-todo)
+--
+ Options
+onto=!     merge topics onto this branch (default: $DEVELOP)
+ Actions
+continue!  continue after resolving a merge conflict
+skip!      skip the current merge and continue
+abort!     abort and reset the original branch
+quit!      abort but keep the branch where it is
+edit-todo! edit the todo list
+"
+
+eval "$(parsed_options "$@")"
+
+in_progress() {
+  test -n "$in_progress"
+}
+
+assert_in_progress() {
+  test -n "$in_progress" || {
+    echo >&2 "There doesn't appear to be a reintegration in progress. Try"
+    echo >&2 "    $dashless $command $OPTIONS"
+    echo >&2
+    echo >&2 "See '$dashless help $command'."
+    exit 1
+  }
+}
+
+refute_in_progress() {
+  test -z "$in_progress" || {
+    local branch="$(cat "$onto")"
+    echo >&2 "There appears to be a reintegration onto '$branch' in progress."
+    echo >&2
+    echo >&2 "If you are in the middle of a reintegration, use"
+    echo >&2 "    $dashless $command $OPTIONS"
+    echo >&2
+    echo >&2 "If not, you can try deleting the state directory first with"
+    echo >&2 "    rm -rf $state"
+    echo >&2
+    echo >&2 "See '$dashless help $command'."
+    exit 1
+  }
+}
+
+at_most_one_action() {
+  test -z "$action" || usage
+}
+
+while test -n "$1"; do
+  case "$1" in
+    --continue|--skip|--abort|--quit|--edit-todo)
+      assert_in_progress
+      at_most_one_action
+      action="${1##--}"
+      branch="$(cat "$onto")"
+      shift
+      ;;
+    --onto=*)
+      refute_in_progress
+      at_most_one_action
+      action="onto"
+      branch="${1##--onto=}"
+      shift
+      ;;
+    --)
+      shift
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
+
+if test -z "$action"; then
+  refute_in_progress
+  action="onto"
+  branch="$DEVELOP"
+fi
+
+if test -f "${BASH_SOURCE[0]}--$action"; then
+  source "${BASH_SOURCE[0]}--$action"
+else
+  echo >&2 "BUG! Unrecognized action: $action"
+  exit 1
+fi

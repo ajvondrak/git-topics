@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+ensure_correct_branch
+
+git update-index --ignore-submodules --refresh &&
+git diff-files --quiet --ignore-submodules || {
+  echo >&2 "Fix all merge conflicts and mark them as resolved using git add."
+  fix_conflicts
+}
+
+pending_merge() {
+  test -f "$GIT_DIR/MERGE_HEAD" && ! git diff-index --cached --quiet HEAD --
+}
+
+if pending_merge; then
+  git commit --quiet || fix_conflicts
+fi
+
+process_todo

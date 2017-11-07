@@ -98,6 +98,9 @@ practice while providing some other goodies.
 * git topics release [major|minor|patch]:
   Tag the stable branch with a new version.
 
+* git topics reintegrate [--onto <branch>]:
+  Rewind & rebuild an integration branch.
+
 ## SEE ALSO
 
 git(1), gitworkflows(7), git-topics-management(7)

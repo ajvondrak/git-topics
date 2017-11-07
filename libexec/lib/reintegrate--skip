@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+ensure_correct_branch
+git rerere clear
+git reset --quiet --hard HEAD || exit "$?"
+process_todo

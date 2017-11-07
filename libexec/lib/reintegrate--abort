@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+ensure_correct_branch
+ref="$(cat "$orig")"
+git rerere clear
+git reset --quiet --hard "$ref" || exit "$?"
+finished "Reintegration aborted, reset $branch to $ref"

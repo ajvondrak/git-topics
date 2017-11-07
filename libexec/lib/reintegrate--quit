@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+finished "Reintegration aborted, changes to $branch left intact"

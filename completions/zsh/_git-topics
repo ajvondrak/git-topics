@@ -17,6 +17,7 @@ _git-topics() {
         help:"Display help for a git-topics command"
         integrate:"Merge a topic branch to the integration branch"
         list:"List existing topic branches and their statuses"
+        reintegrate:"Rewind & rebuild an integration branch"
         release:"Tag the stable branch with a new version"
         review:"Push a topic branch upstream for review"
         setup:"Configure git-topics"
@@ -30,6 +31,7 @@ _git-topics() {
         help) __git_topics_help ;;
         integrate) __git_topics_integrate ;;
         list) __git_topics_list ;;
+        reintegrate) __git_topics_reintegrate ;;
         release) __git_topics_release ;;
         review) __git_topics_review ;;
         setup) __git_topics_setup ;;
@@ -49,6 +51,7 @@ __git_topics_help() {
     help
     integrate
     list
+    reintegrate
     release
     review
     setup
@@ -73,6 +76,16 @@ __git_topics_list() {
     {-p,--porcelain}"[output a machine-readable format]"
 }
 
+__git_topics_reintegrate() {
+  _arguments -C -S -s \
+    "--onto=[merge topics onto this branch]:branches:__git_branches" \
+    "--continue[continue after resolving a merge conflict]" \
+    "--skip[skip the current merge and continue]" \
+    "--abort[abort and reset the original branch]" \
+    "--quit[abort but keep the branch where it is]" \
+    "--edit-todo[edit the todo list]"
+}
+
 __git_topics_release() {
   _alternative "versions:version:(major minor patch)"
 }
@@ -92,19 +105,29 @@ __git_topics_start() {
 __started_topics() {
   local expl
   local -a topics
-	topics=(${${(f)"$(_call_program topics \
+  topics=(${${(f)"$(_call_program topics \
     git topics list --all --porcelain | grep '^-' | sed 's/^- //' 2>/dev/null
   )"}})
-	__git_command_successful && _wanted topics expl "topic" compadd $topics
+  __git_command_successful && _wanted topics expl "topic" compadd $topics
 }
 
 __integrated_topics() {
   local expl
   local -a topics
-	topics=(${${(f)"$(_call_program topics \
+  topics=(${${(f)"$(_call_program topics \
     git topics list --all --porcelain | grep '^+' | sed 's/^+ //' 2>/dev/null
   )"}})
-	__git_command_successful && _wanted topics expl "topic" compadd $topics
+  __git_command_successful && _wanted topics expl "topic" compadd $topics
+}
+
+__git_branches() {
+  local expl
+  declare -a branches
+  branches=(${${(f)"$(_call_program branches
+    git for-each-ref --format="%(refname:short)" refs/heads 2>/dev/null
+  )"}})
+  __git_command_successful || return
+  _wanted branches expl "branches" compadd $branches
 }
 
 __git_command_successful() {
