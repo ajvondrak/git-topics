@@ -23,6 +23,6 @@ fi
 keep_up_to_date "$MASTER"
 
 if ! git merge-base --is-ancestor "$TOPIC" "$MASTER"; then
-  git checkout "$MASTER"
-  git merge --no-ff "$TOPIC" || exit 1
+  git checkout --quiet "$MASTER"
+  git merge --no-ff "$TOPIC"
 fi

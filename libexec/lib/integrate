@@ -12,5 +12,5 @@ set_topic "$1"
 
 keep_up_to_date "$TOPIC"
 keep_up_to_date "$DEVELOP"
-git checkout "$DEVELOP"
+git checkout --quiet "$DEVELOP"
 git merge --no-ff "$TOPIC"

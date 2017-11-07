@@ -130,7 +130,6 @@ You can freely integrate whatever topics are ready to be tested. Just resolve me
 
 ```
 $ git topics integrate simple-feature
-Already on 'develop'
 Auto-merging features
 CONFLICT (add/add): Merge conflict in features
 Automatic merge failed; fix conflicts and then commit the result.
@@ -233,8 +232,7 @@ When your finished topics are ready to be pushed upstream, tag a new release ver
 
 ```
 $ git topics release major # fill out the tag message
-Already on 'master'
-Branch complex-feature has no remote for pushing.
+Branch complex-feature is not tracking a remote branch.
 Deleted branch complex-feature (was fe7b3bd).
 ```
 

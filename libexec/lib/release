@@ -11,7 +11,7 @@ require_setup
 require_clean_work_tree "tag a new release"
 
 keep_up_to_date "$MASTER"
-git checkout "$MASTER"
+git checkout --quiet "$MASTER"
 
 tip="$(git describe --exact-match --abbrev=0 "$MASTER" 2>/dev/null)" && {
   echo >&2 "The tip of the '$MASTER' branch is already tagged '$tip'."
@@ -74,14 +74,14 @@ pushremote_for() {
   git config "branch.$1.pushremote" ||
   git config "remote.pushdefault" ||
   git config "branch.$1.remote" || {
-    echo >&2 "Branch $1 has no remote for pushing."
+    echo >&2 "Branch $1 is not tracking a remote branch."
     return 1
   }
 }
 
 pushref_for() {
   git config "branch.$1.merge" || {
-    echo >&2 "Branch $1 has no corresponding remote branch."
+    echo >&2 "Branch $1 is not tracking a remote branch."
     return 1
   }
 }
