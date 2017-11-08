@@ -1,11 +1,21 @@
 #!/usr/bin/env bash
 
-USAGE="[<command>] [<options>]
+USAGE="\
+[<command>] [<options>]
 
-See 'git help topics'."
-
+See 'git help topics'.
+"
 OPTIONS_SPEC=
 source "$(git --exec-path)/git-sh-setup"
+
+parsed_options() {
+  echo "$OPTIONS_SPEC" |
+  git rev-parse --parseopt --stuck-long -- "$@" || {
+    local status="$?"
+    echo "echo \"See '$dashless help $command'.\""
+    echo "exit $status"
+  }
+}
 
 require_setup() {
   MASTER="$(git config git-topics.master)" &&
@@ -15,8 +25,20 @@ require_setup() {
   exit 1
 }
 
-set_topic() {
+require_topic() {
+  while test -n "$1"; do
+    case "$1" in
+      --) shift; break ;;
+      *) shift ;;
+    esac
+  done
+
+  if test "$#" -ne 1; then
+    usage
+  fi
+
   TOPIC="$1"
+
   if ! git show-ref --quiet --verify -- "refs/heads/$TOPIC"; then
     echo >&2 "fatal: no such branch: '$TOPIC'"
     exit 1
@@ -72,10 +94,7 @@ source="$(lib "$command")"
 
 if test -f "$source"; then
   usage() {
-    echo >&2 "usage: git topics $command $OPTIONS"
-    echo >&2
-    echo >&2 "See 'git topics help $command'."
-    exit 1
+    eval "$(parsed_options "-h")"
   }
   shift
   source "$source"

@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 
-OPTIONS="[<command>]"
+OPTIONS_SPEC="\
+$dashless $command [<command>]
+--
+"
+
+eval "$(parsed_options "$@")"
+
+while test -n "$1"; do
+  case "$1" in
+    --) shift; break ;;
+    *) shift ;;
+  esac
+done
 
 case "$#" in
   0) man git-topics ;;

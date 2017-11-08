@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
 
-OPTIONS="[-f|--force]"
+OPTIONS_SPEC="\
+$dashless $command [-f|--force]
+--
+f,force! force setup to start over again
+"
 
-case "$1" in
-  "") force= ;;
-  -f|--force) force=t ;;
-  *) usage ;;
-esac
+eval "$(parsed_options "$@")"
+
+while test -n "$1"; do
+  case "$1" in
+    -f|--force)
+      shift
+      test -z "$force" || usage
+      force=t
+      ;;
+    --)
+      shift
+      ;;
+    *)
+      usage
+      ;;
+  esac
+done
 
 force() {
   test -n "$force"

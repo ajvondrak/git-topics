@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
-OPTIONS="<topic>"
+OPTIONS_SPEC="\
+$dashless $command <topic>
+--
+"
 
-if test "$#" != 1; then
-  usage
-fi
+eval "$(parsed_options "$@")"
 
 require_setup
+require_topic "$@"
 require_clean_work_tree "push topic upstream for review"
-set_topic "$1"
 
 pushremote_for() {
   git config "branch.$1.pushremote" ||

@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
 
-OPTIONS="[major|minor|patch]"
+OPTIONS_SPEC="\
+$dashless $command [major|minor|patch]
+--
+"
+
+eval "$(parsed_options "$@")"
+
+while test -n "$1"; do
+  case "$1" in
+    --) shift; break ;;
+    *) shift ;;
+  esac
+done
+
+if test "$#" -ne 1; then
+  usage
+fi
 
 case "$1" in
   major|minor|patch) ;;

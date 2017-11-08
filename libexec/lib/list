@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-OPTIONS="[-a|--all] [-r|--remote] [-s|--short] [-p|--porcelain]"
-
-eval "$(echo "
-git topics list [options]
+OPTIONS_SPEC="\
+$dashless $command [<options>]
 --
-a,all!       list both local and remote topics
-r,remote!    list only remote topics
+r,remote!    list only remote topic branches
+a,all!       list both local and remote topic branches
 s,short!     output a short format
 p,porcelain! output a machine-readable format
-" | git rev-parse --parseopt --stuck-long -- "$@" 2>/dev/null || echo "usage")"
+"
+
+eval "$(parsed_options "$@")"
 
 patterns=("refs/heads")
 format="long"
@@ -20,11 +20,8 @@ while test -n "$1"; do
     --remote) shift; patterns=("refs/remotes") ;;
     --short) shift; format="short" ;;
     --porcelain) shift; format="porcelain" ;;
-    --) shift; break ;;
-    *)
-      echo >&2 "BUG! Unrecognized option got through: $1"
-      exit 1
-      ;;
+    --) shift ;;
+    *) usage ;;
   esac
 done
 

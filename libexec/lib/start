@@ -1,8 +1,20 @@
 #!/usr/bin/env bash
 
-OPTIONS="<topic>"
+OPTIONS_SPEC="\
+$dashless $command <topic>
+--
+"
 
-if test "$#" != 1; then
+eval "$(parsed_options "$@")"
+
+while test -n "$1"; do
+  case "$1" in
+    --) shift; break ;;
+    *) shift ;;
+  esac
+done
+
+if test "$#" -ne 1; then
   usage
 fi
 
