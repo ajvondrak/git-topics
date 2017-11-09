@@ -15,7 +15,7 @@ while test -n "$1"; do
 done
 
 case "$#" in
-  0) man git-topics ;;
-  1) man "git-topics-$1" ;;
+  0) git help --man git-topics ;;
+  1) git help --man "git-topics-$1" ;;
   *) usage ;;
 esac
