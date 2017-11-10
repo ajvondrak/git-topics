@@ -4,7 +4,7 @@ A collection of [git](https://git-scm.com/) commands to manage independent topic
 
 ## Background
 
-* [Why git-topics?](RATIONALE.md)
+* [Why git-topics?](RATIONALE.md) (and not git-flow, github-flow, etc)
 * [Documentation](ronn)
 * Git
   * [Git Branching](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
