@@ -2,6 +2,20 @@
 
 A collection of [git](https://git-scm.com/) commands to manage independent topic branches. The branching model is a simplified version of the concepts described in [gitworkflows(7)](https://git-scm.com/docs/gitworkflows).
 
+## Background
+
+* [Why git-topics?](RATIONALE.md)
+* [Documentation](ronn)
+* Git
+  * [Git Branching](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
+  * [How the Creators of Git Do Branching](https://hackernoon.com/how-the-creators-of-git-do-branches-e6fcc57270fb)
+  * [gitworkflows(7)](https://git-scm.com/docs/gitworkflows)
+* Other branching models
+  * [GitFlow](http://nvie.com/posts/a-successful-git-branching-model/)
+  * [GitHub Flow](http://scottchacon.com/2011/08/31/github-flow.html)
+  * [GitLab Flow](https://about.gitlab.com/2014/09/29/gitlab-flow/)
+  * [OneFlow](http://endoflineblog.com/oneflow-a-git-branching-model-and-workflow)
+
 ## Installation
 
 Using [Homebrew](https://brew.sh/):
@@ -18,7 +32,7 @@ $ git topics setup # follow the prompts
 $ git topics help
 ```
 
-## Basic Usage
+## Walkthrough
 
 You can setup git-topics on any git repository with at least one commit. In this example, we'll initialize a new one.
 
@@ -270,16 +284,3 @@ Check out further features and documentation via the builtin help.
 ```
 $ git topics help
 ```
-
-## Further Reading
-
-* [Git Branching](https://git-scm.com/book/en/v2/Git-Branching-Branches-in-a-Nutshell)
-* [How the Creators of Git Do Branching](https://hackernoon.com/how-the-creators-of-git-do-branches-e6fcc57270fb)
-* [gitworkflows(7)](https://git-scm.com/docs/gitworkflows)
-* [Markdown versions of the git-topics man-pages](ronn)
-* Other git branching models
-  * [GitFlow](http://nvie.com/posts/a-successful-git-branching-model/)
-  * [GitHub Flow](http://scottchacon.com/2011/08/31/github-flow.html)
-  * [GitLab Flow](https://about.gitlab.com/2014/09/29/gitlab-flow/)
-  * [OneFlow](http://endoflineblog.com/oneflow-a-git-branching-model-and-workflow)
-* [Why git-topics?](RATIONALE.md)
