@@ -1,7 +1,0 @@
-git topics setup
-  hooks
-    prevent untagged master pushes
-    prevent non-merge develop pushes
-
-git topics reintegrate
-  syntax highlighting for todo list
