@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-VERSION='0.0.1'
+VERSION="$(git tag --sort=version:refname | tail -1 | sed 's/^v//')"
+test -n "$VERSION" || VERSION="0.0.1"
 
 if ! command -v ronn >/dev/null 2>&1; then
   echo >&2 "Before building, you need to install ronn:"
@@ -29,7 +30,10 @@ echo >&2 "Generating $build..."
 if ! test -d builds; then
   mkdir builds
 fi
-tar -cvzf "$build" completions libexec man 2> >(sed 's/^/     /')
+tar -cvzf "$build" LICENSE README.md RATIONALE.md completions libexec man 2> >(
+  sed 's/^/     /'
+)
 
 echo >&2
+echo >&2 "Generated $build"
 echo >&2 "SHA-256: $(shasum -a 256 "$build" | cut -d' ' -f1)"
