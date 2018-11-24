@@ -173,28 +173,25 @@ if test -d "$state"; then
   OPTIONS="(--continue | --skip | --abort | --quit | --edit-todo)"
 else
   in_progress=
-  OPTIONS="[--onto <branch>]"
+  OPTIONS="[--onto <branch>] [--allow-empty]"
 fi
 
 OPTIONS_SPEC="\
-$dashless $command [--onto <branch>]
+$dashless $command [--onto <branch>] [--allow-empty]
 $dashless $command (--continue | --skip | --abort | --quit | --edit-todo)
 --
  Options
-onto=!     merge topics onto this branch (default: $DEVELOP)
+onto=!       merge topics onto this branch (default: $DEVELOP)
+allow-empty! do not abort due to empty todo list
  Actions
-continue!  continue after resolving a merge conflict
-skip!      skip the current merge and continue
-abort!     abort and reset the original branch
-quit!      abort but keep the branch where it is
-edit-todo! edit the todo list
+continue!    continue after resolving a merge conflict
+skip!        skip the current merge and continue
+abort!       abort and reset the original branch
+quit!        abort but keep the branch where it is
+edit-todo!   edit the todo list
 "
 
 eval "$(parsed_options "$@")"
-
-in_progress() {
-  test -n "$in_progress"
-}
 
 assert_in_progress() {
   test -n "$in_progress" || {
@@ -240,6 +237,11 @@ while test -n "$1"; do
       at_most_one_action
       action="onto"
       branch="${1##--onto=}"
+      shift
+      ;;
+    --allow-empty)
+      refute_in_progress
+      allow_empty="true"
       shift
       ;;
     --)

@@ -2,7 +2,7 @@
 
 ## SYNOPSIS
 
-`git topics reintegrate` [--onto <branch>]
+`git topics reintegrate` [--onto <branch>] [--allow-empty]
 
 `git topics reintegrate` (--continue | --skip | --abort | --quit | --edit-todo)
 
@@ -50,14 +50,23 @@ created and based off of _master_.
 
 Merge conflicts and other errors might interrupt the execution of the todo
 list. When this happens, it's your responsibility to resolve the issue and
-resume the reintegration using the "action" flags of this command (i.e., any
-option other than `--onto`).
+resume the reintegration using the flags listed in the [ACTIONS][] section
+below.
 
 ## OPTIONS
 
 * --onto <branch>:
   Reintegrate topics onto the specified branch. If not supplied, the target
   branch will default to _develop_.
+
+* --allow-empty:
+  Normally, you can abort a reintegration by saving an empty todo list (whether
+  literally empty or containing nothing but `drop` instructions). However, if
+  you give this option, the reintegration will still run without re-merging any
+  topics. Effectively, this is equivalent to just doing `git reset --hard
+  <master>` by hand.
+
+## ACTIONS
 
 * --continue:
   Resumes executing the todo list after you've resolved a merge conflict.

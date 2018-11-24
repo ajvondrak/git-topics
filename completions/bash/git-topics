@@ -55,7 +55,7 @@ __git_topics_reintegrate() {
     return
   fi
   case "$cur" in
-    --*) __gitcomp "--onto" ;;
+    --*) __gitcomp "--onto --allow-empty" ;;
     *) __git_complete_refs ;;
   esac
 }

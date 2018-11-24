@@ -22,14 +22,23 @@ echo "$(
   sed "s/^- /drop /"
 )" >"$todo"
 
-EXTRA_INSTRUCTIONS="
+if test -z "$allow_empty"; then
+  EXTRA_INSTRUCTIONS="
 If you drop every line, the reintegration will be aborted without any effect on
 the $branch branch.
 "
+else
+  EXTRA_INSTRUCTIONS="
+If you drop every line, the reintegration will still rewind the $branch branch,
+making it even with the $MASTER branch.
+"
+fi
 
 edit_todo
 
-test -s "$todo" || finished "Reintegration aborted due to empty todo list"
+if test -z "$allow_empty"; then
+  test -s "$todo" || finished "Reintegration aborted due to empty todo list"
+fi
 
 git checkout --quiet "$branch" || exit "$?"
 ensure_correct_branch

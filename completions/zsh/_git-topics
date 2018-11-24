@@ -79,6 +79,7 @@ __git_topics_list() {
 __git_topics_reintegrate() {
   _arguments -C -S -s \
     "--onto=[merge topics onto this branch]:branches:__git_branches" \
+    "--allow-empty[do not abort due to empty todo list]" \
     "--continue[continue after resolving a merge conflict]" \
     "--skip[skip the current merge and continue]" \
     "--abort[abort and reset the original branch]" \
