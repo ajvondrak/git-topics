@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+FILES=(
+  LICENSE
+  README.md
+  RATIONALE.md
+  completions
+  libexec
+  man
+  vim
+)
+
 VERSION="$(git tag --sort=version:refname | tail -1 | sed 's/^v//')"
 test -n "$VERSION" || VERSION="0.0.1"
 
@@ -30,9 +40,7 @@ echo >&2 "Generating $build..."
 if ! test -d builds; then
   mkdir builds
 fi
-tar -cvzf "$build" LICENSE README.md RATIONALE.md completions libexec man 2> >(
-  sed 's/^/     /'
-)
+tar -cvzf "$build" "${FILES[@]}" 2> >(sed 's/^/     /')
 
 echo >&2
 echo >&2 "Generated $build"
