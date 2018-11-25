@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 # This implementation is heavily inspired by `git rebase --interactive`:
-#   * https://github.com/git/git/blob/master/git-rebase.sh
-#   * https://github.com/git/git/blob/master/git-rebase--interactive.sh
+#   * https://github.com/git/git/blob/0ce5a69/git-rebase.sh
+#   * https://github.com/git/git/blob/0ce5a69/git-rebase--interactive.sh
 
 require_setup
 
