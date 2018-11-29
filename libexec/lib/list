@@ -27,40 +27,40 @@ done
 
 require_setup
 
-refname() {
-  git rev-parse --symbolic-full-name "$1" 2>/dev/null
+push() {
+  git rev-parse --symbolic-full-name "$1@{push}" 2>/dev/null
 }
 
-master_ref="$(refname "$MASTER")"
-master_pushref="$(refname "$MASTER@{push}")"
+topics="
+if test %(refname:short) != '$MASTER' &&
+   test %(refname:short) != '$DEVELOP' &&
+   test %(refname) != '$(push "$MASTER")' &&
+   test %(refname) != '$(push "$DEVELOP")' &&
+   test -z %(symref); then
+  echo %(refname:short)
+fi
+"
 
-develop_ref="$(refname "$DEVELOP")"
-develop_pushref="$(refname "$DEVELOP@{push}")"
-
-not_a_topic() {
-  case "$1" in
-    refs/*/HEAD) return 0 ;;
-    "$master_ref"|"$master_pushref") return 0 ;;
-    "$develop_ref"|"$develop_pushref") return 0 ;;
-    *) test -z "$(git merge-base "$MASTER" "$1")" ;;
-  esac
+topics() {
+  eval "$(xargs git for-each-ref --shell --format="$topics")"
 }
 
-on_master=()
-on_develop=()
-on_topic=()
+finished=($(
+  git for-each-ref --format="%(refname)" --merged "$MASTER" $patterns |
+  topics
+))
 
-while read branch; do
-  if not_a_topic "$branch"; then
-    continue
-  elif git merge-base --is-ancestor "$branch" "$MASTER"; then
-    on_master+=("$branch")
-  elif git merge-base --is-ancestor "$branch" "$DEVELOP"; then
-    on_develop+=("$branch")
-  else
-    on_topic+=("$branch")
-  fi
-done < <(echo "${patterns[@]}" | xargs git for-each-ref --format="%(refname)")
+integrated=($(
+  git for-each-ref --format="%(refname)" --merged "$DEVELOP" $patterns |
+  xargs git for-each-ref --format="%(refname)" --no-merged "$MASTER" |
+  topics
+))
+
+started=($(
+  git for-each-ref --format="%(refname)" --no-merged "$DEVELOP" $patterns |
+  xargs git for-each-ref --format="%(refname)" --no-merged "$MASTER" |
+  topics
+))
 
 case "$format" in
   long|short)
@@ -79,71 +79,77 @@ case "$format" in
 esac
 
 if test "$colorize" = "true"; then
-  header="$(git config --get-color "color.topics.header" "normal")"
-  finished="$(git config --get-color "color.topics.finished" "green")"
-  integrated="$(git config --get-color "color.topics.integrated" "yellow")"
-  started="$(git config --get-color "color.topics.started" "red")"
-  reset="$(git config --get-color "" "reset")"
+  header_color="$(git config --get-color color.topics.header normal)"
+  finished_color="$(git config --get-color color.topics.finished green)"
+  integrated_color="$(git config --get-color color.topics.integrated yellow)"
+  started_color="$(git config --get-color color.topics.started red)"
+  reset_color="$(git config --get-color "" reset)"
 fi
 
-if test "${#on_master[@]}" -ne 0; then
+if test "${#finished[@]}" -ne 0; then
   case "$format" in
     long)
-      echo "${header}Topics merged to $MASTER:"
-      echo "  (use 'git topics release' to tag a new version)$reset"
+      echo "${header_color}Topics merged to $MASTER:"
+      echo "  (use 'git topics release' to tag a new version)$reset_color"
       echo
-      echo "${on_master[@]}" |
-      xargs git for-each-ref --format="    ${finished}%(refname:short)$reset"
+      for topic in "${finished[@]}"; do
+        echo "    $finished_color$topic$reset_color"
+      done
       echo
       ;;
     short|porcelain)
-      echo "${on_master[@]}" |
-      xargs git for-each-ref --format="* ${finished}%(refname:short)$reset"
+      for topic in  "${finished[@]}"; do
+        echo "* $finished_color$topic$reset_color"
+      done
       ;;
   esac
 fi
 
-if test "${#on_develop[@]}" -ne 0; then
+if test "${#integrated[@]}" -ne 0; then
   case "$format" in
     long)
-      echo "${header}Topics merged to $DEVELOP:"
-      echo "  (use 'git topics finish' to promote to $MASTER)$reset"
+      echo "${header_color}Topics merged to $DEVELOP:"
+      echo "  (use 'git topics finish' to promote to $MASTER)$reset_color"
       echo
-      echo "${on_develop[@]}" |
-      xargs git for-each-ref --format="    ${integrated}%(refname:short)$reset"
+      for topic in "${integrated[@]}"; do
+        echo "    $integrated_color$topic$reset_color"
+      done
       echo
       ;;
     short|porcelain)
-      echo "${on_develop[@]}" |
-      xargs git for-each-ref --format="+ ${integrated}%(refname:short)$reset"
+      for topic in "${integrated[@]}"; do
+        echo "+ $integrated_color$topic$reset_color"
+      done
       ;;
   esac
 fi
 
-if test "${#on_topic[@]}" -ne 0; then
+if test "${#started[@]}" -ne 0; then
   case "$format" in
     long)
-      echo "${header}Topics not yet merged:"
-      echo "  (use 'git topics integrate' to promote to $DEVELOP)$reset"
+      echo "${header_color}Topics not yet merged:"
+      echo "  (use 'git topics integrate' to promote to $DEVELOP)$reset_color"
       echo
-      echo "${on_topic[@]}" |
-      xargs git for-each-ref --format="    ${started}%(refname:short)$reset"
+      for topic in "${started[@]}"; do
+        echo "    $started_color$topic$reset_color"
+      done
       echo
       ;;
     short|porcelain)
-      echo "${on_topic[@]}" |
-      xargs git for-each-ref --format="- ${started}%(refname:short)$reset"
+      for topic in "${started[@]}"; do
+        echo "- $started_color$topic$reset_color"
+      done
       ;;
   esac
 fi
 
-if test "${#on_topic[@]}" -eq 0 &&
-   test "${#on_master[@]}" -eq 0 &&
-   test "${#on_develop[@]}" -eq 0; then
+if test "${#finished[@]}" -eq 0 &&
+   test "${#integrated[@]}" -eq 0 &&
+   test "${#started[@]}" -eq 0; then
   case "$format" in
     long)
-      echo "${header}No topics found."
-      echo "Use 'git topics start' to create a new branch.$reset"
+      echo "${header_color}No topics found."
+      echo "Use 'git topics start' to create a new branch.$reset_color"
       ;;
     short|porcelain)
       ;;
