@@ -20,13 +20,13 @@ A collection of [git](https://git-scm.com/) commands to manage independent topic
 
 Using [Homebrew](https://brew.sh/):
 
-```
+```console
 $ brew install ajvondrak/tap/git-topics
 ```
 
 ## Quick Start
 
-```
+```console
 $ cd /path/to/your/repo
 $ git topics setup # follow the prompts
 $ git topics help
@@ -36,7 +36,7 @@ $ git topics help
 
 You can setup git-topics on any git repository with at least one commit. In this example, we'll initialize a new one.
 
-```
+```console
 $ git init repo
 Initialized empty Git repository in /private/tmp/repo/.git/
 $ cd repo
@@ -47,7 +47,7 @@ $ git commit --allow-empty -m 'Initial commit'
 There are two long-running branches in this workflow. You can just accept the
 default branch names by hitting `<enter>` at the `git topics setup` prompts. The first branch must already exist, but the second branch will be created if missing.
 
-```
+```console
 $ git topics setup
 You need a branch that tracks stable releases for your repository.
 Commits here may be shipped at any time. Versions are defined by tags.
@@ -69,7 +69,7 @@ git-topics is setup! See 'git help topics' to get started.
 
 Create topic branches with `git topics start` then commit to them as usual.
 
-```
+```console
 $ git topics start complex-feature
 Switched to a new branch 'complex-feature'
 $ echo 'complex' >> features
@@ -80,7 +80,7 @@ $ git commit -m 'add complex feature'
  create mode 100644 features
 ```
 
-```
+```console
 $ git topics start simple-feature
 Switched to a new branch 'simple-feature'
 $ echo 'simple' >> features
@@ -91,7 +91,7 @@ $ git commit -m 'add simple feature'
  create mode 100644 features
 ```
 
-```
+```console
 $ git topics
 Topics not yet merged:
   (use 'git topics integrate' to promote to develop)
@@ -103,7 +103,7 @@ Topics not yet merged:
 
 When a topic is ready for testing, stage it to the integration branch with `git topics integrate`.
 
-```
+```console
 $ git topics integrate complex-feature
 Switched to branch 'develop'
 Merge made by the 'recursive' strategy.
@@ -112,19 +112,19 @@ Merge made by the 'recursive' strategy.
  create mode 100644 features
 ```
 
-```
+```console
 $ git log --oneline develop
 130eab9 (HEAD -> develop) Merge branch 'complex-feature' into develop
 fe7b3bd (complex-feature) add complex feature
 d234655 (master) Initial commit
 ```
 
-```
+```console
 $ git log --oneline master
 d234655 (master) Initial commit
 ```
 
-```
+```console
 $ git topics
 Topics merged to develop:
   (use 'git topics finish' to promote to master)
@@ -142,14 +142,14 @@ Topics not yet merged:
 
 You can freely integrate whatever topics are ready to be tested. Just resolve merge conflicts inline.
 
-```
+```console
 $ git topics integrate simple-feature
 Auto-merging features
 CONFLICT (add/add): Merge conflict in features
 Automatic merge failed; fix conflicts and then commit the result.
 ```
 
-```
+```console
 $ git status
 On branch develop
 You have unmerged paths.
@@ -164,7 +164,7 @@ Unmerged paths:
 no changes added to commit (use "git add" and/or "git commit -a")
 ```
 
-```
+```console
 $ cat features
 <<<<<<< HEAD
 complex
@@ -173,26 +173,26 @@ simple
 >>>>>>> simple-feature
 ```
 
-```
+```console
 $ vim features # fix the conflict...
 $ git add features
 $ git commit # conclude the merge
 [develop 488d196] Merge branch 'simple-feature' into develop
 ```
 
-```
+```console
 $ git log --oneline --first-parent develop
 488d196 (HEAD -> develop) Merge branch 'simple-feature' into develop
 130eab9 Merge branch 'complex-feature' into develop
 d234655 (master) Initial commit
 ```
 
-```
+```console
 $ git log --oneline master
 d234655 (master) Initial commit
 ```
 
-```
+```console
 $ git topics
 Topics merged to develop:
   (use 'git topics finish' to promote to master)
@@ -204,7 +204,7 @@ Topics merged to develop:
 
 Once a topic has been tested, it may be promoted to the stable branch independently with `git topics finish`. Because of this independence, merge conflicts may present themselves differently in `master` vs `develop`, so beware of hidden topic dependencies!
 
-```
+```console
 $ git topics finish complex-feature
 Switched to branch 'master'
 Merge made by the 'recursive' strategy.
@@ -213,20 +213,20 @@ Merge made by the 'recursive' strategy.
  create mode 100644 features
 ```
 
-```
+```console
 $ git log --oneline --first-parent develop
 488d196 (develop) Merge branch 'simple-feature' into develop
 130eab9 Merge branch 'complex-feature' into develop
 d234655 Initial commit
 ```
 
-```
+```console
 $ git log --oneline --first-parent master
 861e039 (HEAD -> master) Merge branch 'complex-feature'
 d234655 Initial commit
 ```
 
-```
+```console
 $ git topics
 Topics merged to master:
   (use 'git topics release' to tag a new version)
@@ -244,26 +244,26 @@ Topics merged to develop:
 
 When your finished topics are ready to be pushed upstream, tag a new release version with `git topics release`.
 
-```
+```console
 $ git topics release major # fill out the tag message
 Branch complex-feature is not tracking a remote branch.
 Deleted branch complex-feature (was fe7b3bd).
 ```
 
-```
+```console
 $ git log --oneline --first-parent develop
 488d196 (develop) Merge branch 'simple-feature' into develop
 130eab9 Merge branch 'complex-feature' into develop
 d234655 Initial commit
 ```
 
-```
+```console
 $ git log --oneline --first-parent master
 861e039 (HEAD -> master, tag: v1.0.0) Merge branch 'complex-feature'
 d234655 Initial commit
 ```
 
-```
+```console
 $ git topics
 Topics merged to develop:
   (use 'git topics finish' to promote to master)
@@ -272,7 +272,7 @@ Topics merged to develop:
 
 ```
 
-```
+```console
 $ git tag -n
 v1.0.0          First version ever!
 ```
@@ -281,6 +281,6 @@ v1.0.0          First version ever!
 
 Check out further features and documentation via the builtin help.
 
-```
+```console
 $ git topics help
 ```
